@@ -31,6 +31,7 @@ interface Course {
     price: number;
     discountPrice?: number;
     discountActive: boolean;
+    certificateEnabled?: boolean;
     isFree: boolean;
     isFeatured: boolean;
     thumbnail: string;
@@ -115,6 +116,8 @@ const parseQuizCsv = (csvText: string) => {
     return questions;
 };
 
+const isValidObjectId = (value: string) => /^[0-9a-fA-F]{24}$/.test(String(value || ""));
+
 export default function EditCoursePage() {
     const params = useParams();
     const router = useRouter();
@@ -158,27 +161,26 @@ export default function EditCoursePage() {
 
     const fetchCourse = async () => {
         try {
-            const res = await fetch(`/api/courses/${courseId}`); // Modified API to support grabbing single course if needed, or filter form list
-            // Actually existing /api/courses returns all. We might need a single get.
-            // If /api/courses/[id] exists for PUT, maybe it supports GET? 
-            // Let's assume we might need to fetch all and find, OR user the existing GET endpoint if I made one.
-            // Checking existing code... PUT exists. GET might not. 
-            // I'll try GET /api/courses/[id]. If not, I'll filter from /api/courses.
-
-            let data;
-            const resSingle = await fetch(`/api/courses/${courseId}`);
-            if (resSingle.ok) {
-                const json = await resSingle.json();
-                setCourse(json.course);
-            } else {
-                // Fallback if specific GET not implemented
-                const resAll = await fetch("/api/courses");
-                if (resAll.ok) {
-                    const json = await resAll.json();
-                    const found = json.courses.find((c: any) => c._id === courseId);
-                    setCourse(found || null);
-                }
+            const resSingle = await fetch(`/api/courses/${courseId}?adminView=1&t=${Date.now()}`, { cache: "no-store" });
+            if (!resSingle.ok) {
+                setCourse(null);
+                setLoading(false);
+                return;
             }
+
+            const json = await resSingle.json();
+            if (json?.course) {
+                const normalizedSections = (json.course.sections || []).map((section: any) => ({
+                    ...section,
+                    _id: section?._id ? String(section._id) : "",
+                }));
+                setCourse({
+                    ...json.course,
+                    sections: normalizedSections,
+                    certificateEnabled: json.course.certificateEnabled === false ? false : true,
+                });
+            }
+
             setLoading(false);
         } catch (e) {
             console.error(e);
@@ -200,6 +202,7 @@ export default function EditCoursePage() {
                     price: course.isFree ? 0 : course.price,
                     isFree: course.isFree,
                     isFeatured: course.isFeatured,
+                    certificateEnabled: course.certificateEnabled === false ? false : true,
                     difficulty: course.difficulty,
                     thumbnail: course.thumbnail,
                     discountPrice: course.discountPrice,
@@ -208,10 +211,29 @@ export default function EditCoursePage() {
                     languages: languageInput.split(",").map(s => s.trim()).filter(Boolean)
                 }),
             });
+            const data = await res.json();
             if (res.ok) {
+                if (data?.course) {
+                    const normalizedSections = (data.course.sections || []).map((section: any) => ({
+                        ...section,
+                        _id: section?._id ? String(section._id) : "",
+                    }));
+                    setCourse({
+                        ...data.course,
+                        sections: normalizedSections,
+                        certificateEnabled: data.course.certificateEnabled === false ? false : true,
+                    });
+                }
+                await fetchCourse();
                 alert("Course Updated Successfully!");
             } else {
-                alert("Update Failed");
+                const expected = data?.expectedCertificateEnabled;
+                const actual = data?.actualCertificateEnabled;
+                if (typeof expected === "boolean" && typeof actual === "boolean") {
+                    alert(`${data?.error || "Update Failed"} (expected: ${expected ? "ON" : "OFF"}, saved: ${actual ? "ON" : "OFF"})`);
+                } else {
+                    alert(data?.error || "Update Failed");
+                }
             }
         } catch (e) { console.error(e); alert("Error updating course"); }
         setSaving(false);
@@ -285,7 +307,16 @@ export default function EditCoursePage() {
         setCourse({ ...course, sections: newSections });
 
         try {
-            const sectionIds = newSections.map((s) => s._id);
+            const sectionIds = newSections
+                .map((s) => s._id)
+                .filter((sectionId: string) => isValidObjectId(sectionId));
+
+            if (sectionIds.length !== newSections.length) {
+                alert("Some sections have invalid IDs. Refreshing course data.");
+                fetchCourse();
+                return;
+            }
+
             await fetch(`/api/courses/${course._id}`, {
                 method: "PUT",
                 headers: { "Content-Type": "application/json" },
@@ -295,6 +326,11 @@ export default function EditCoursePage() {
     };
 
     const handleDeleteSection = async (sectionId: string) => {
+        if (!isValidObjectId(sectionId)) {
+            alert("Invalid section ID. Refreshing course data.");
+            fetchCourse();
+            return;
+        }
         if (!confirm("Delete this section permanently?")) return;
         try {
             await fetch(`/api/sections/${sectionId}`, { method: "DELETE" });
@@ -304,6 +340,11 @@ export default function EditCoursePage() {
 
     /* Edit Section Logic */
     const openEditSection = (section: Section) => {
+        if (!isValidObjectId(section._id)) {
+            alert("Invalid section ID. Refreshing course data.");
+            fetchCourse();
+            return;
+        }
         setEditingSection(section);
         setEditForm({
             title: section.title,
@@ -449,6 +490,19 @@ export default function EditCoursePage() {
                                     <span className="text-sm">Featured Course</span>
                                 </label>
 
+                                <label className="flex items-center gap-2 text-white cursor-pointer">
+                                    <input
+                                        type="checkbox"
+                                        checked={course.certificateEnabled !== false}
+                                        onChange={e => setCourse({ ...course, certificateEnabled: e.target.checked })}
+                                    />
+                                    <span className="text-sm">Certificate Enabled</span>
+                                </label>
+
+                                <div className="text-xs font-mono text-slate-400">
+                                    Persisted Certificate State: <span className={course.certificateEnabled === false ? "text-red-400" : "text-primary"}>{course.certificateEnabled === false ? "OFF" : "ON"}</span>
+                                </div>
+
                                 <GameButton type="submit" disabled={saving} className="w-full">
                                     {saving ? "SAVING..." : "SAVE CHANGES"}
                                 </GameButton>
@@ -466,7 +520,7 @@ export default function EditCoursePage() {
 
                             <div className="space-y-2 mb-8">
                                 {course.sections.map((section, idx) => (
-                                    <div key={section._id} className="bg-slate-950 border border-slate-800 p-4 flex justify-between items-center rounded group hover:border-slate-600 transition">
+                                    <div key={`${section?._id || "section"}-${idx}`} className="bg-slate-950 border border-slate-800 p-4 flex justify-between items-center rounded group hover:border-slate-600 transition">
                                         <div className="flex items-center gap-4">
                                             <span className="font-mono text-slate-600 text-sm">#{idx + 1}</span>
                                             <div>

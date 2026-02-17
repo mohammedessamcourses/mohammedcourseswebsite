@@ -8,6 +8,9 @@ import { cookies } from "next/headers";
 import mongoose from "mongoose";
 import { revalidatePath } from "next/cache";
 
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 export async function GET(
     req: Request,
     { params }: { params: Promise<{ id: string }> }
@@ -15,6 +18,8 @@ export async function GET(
     try {
         await dbConnect();
         const { id } = await params;
+        const { searchParams } = new URL(req.url);
+        const adminView = searchParams.get("adminView") === "1";
 
         // Validate ID
         if (!mongoose.Types.ObjectId.isValid(id)) {
@@ -25,6 +30,37 @@ export async function GET(
 
         if (!course) {
             return NextResponse.json({ error: "Not Found" }, { status: 404 });
+        }
+
+        const rawSections = (course as any).sections || [];
+        const normalizedSections = rawSections.filter((section: any) => !!section && !!section._id);
+
+        if (normalizedSections.length !== rawSections.length) {
+            await Course.findByIdAndUpdate(id, {
+                $set: { sections: normalizedSections.map((section: any) => section._id) }
+            });
+        }
+
+        if (adminView) {
+            const cookieStore = await cookies();
+            const token = cookieStore.get("session_token")?.value;
+            if (!token) {
+                return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+            }
+
+            const payload = verifyToken(token);
+            if (!payload || payload.role !== "admin") {
+                return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+            }
+
+            return NextResponse.json({
+                course: {
+                    ...course,
+                    sections: normalizedSections,
+                    certificateEnabled: (course as any).certificateEnabled === false ? false : true,
+                    isLocked: false,
+                },
+            });
         }
 
         // Check User Access
@@ -52,7 +88,7 @@ export async function GET(
         }
 
         // Process sections to hide content if locked
-        const sections = course.sections.map((section: any) => {
+        const sections = normalizedSections.map((section: any) => {
             const isLocked = !hasFullAccess && !section.isFree;
 
             if (isAdmin) return section; // Admins see everything
@@ -77,6 +113,7 @@ export async function GET(
             course: {
                 ...course,
                 sections,
+                certificateEnabled: (course as any).certificateEnabled === false ? false : true,
                 isLocked: !hasFullAccess && !course.isFree, // Course level lock status for UI
             },
         });
@@ -116,21 +153,62 @@ export async function PUT(
             return NextResponse.json({ error: "Forbidden" }, { status: 403 });
         }
 
-        const updatedCourse = await Course.findByIdAndUpdate(
-            id,
-            { $set: body },
-            { new: true }
+        const updatePayload = { ...body } as Record<string, any>;
+        if ("certificateEnabled" in updatePayload) {
+            const rawValue = updatePayload.certificateEnabled;
+            if (rawValue === "false" || rawValue === 0 || rawValue === "0") {
+                updatePayload.certificateEnabled = false;
+            } else if (rawValue === "true" || rawValue === 1 || rawValue === "1") {
+                updatePayload.certificateEnabled = true;
+            } else {
+                updatePayload.certificateEnabled = !!rawValue;
+            }
+        }
+
+        const updateResult = await Course.updateOne(
+            { _id: id },
+            { $set: updatePayload },
+            { runValidators: true, strict: false }
         );
 
-        if (!updatedCourse) {
+        if (!updateResult.matchedCount) {
             return NextResponse.json({ error: "Not Found" }, { status: 404 });
         }
 
         revalidatePath("/courses", "page");
         revalidatePath(`/courses/${id}`, "page");
+        revalidatePath("/", "page");
         revalidatePath("/dashboard", "page");
+        revalidatePath("/admin", "page");
 
-        return NextResponse.json({ course: updatedCourse });
+        const persistedCourse = await Course.findById(id).populate("sections").lean();
+        if (!persistedCourse) {
+            return NextResponse.json({ error: "Course saved but could not be reloaded" }, { status: 500 });
+        }
+
+        if ("certificateEnabled" in updatePayload) {
+            const expectedCertificateEnabled = updatePayload.certificateEnabled === false ? false : true;
+            const actualCertificateEnabled = (persistedCourse as any).certificateEnabled === false ? false : true;
+
+            if (expectedCertificateEnabled !== actualCertificateEnabled) {
+                return NextResponse.json(
+                    {
+                        error: "Save verification failed for certificate setting",
+                        expectedCertificateEnabled,
+                        actualCertificateEnabled,
+                    },
+                    { status: 500 }
+                );
+            }
+        }
+
+        return NextResponse.json({
+            success: true,
+            course: {
+                ...persistedCourse,
+                certificateEnabled: (persistedCourse as any).certificateEnabled === false ? false : true,
+            }
+        });
     } catch (error) {
         console.error("Course Update Error:", error);
         return NextResponse.json(

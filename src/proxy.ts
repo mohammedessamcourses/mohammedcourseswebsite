@@ -9,7 +9,7 @@ const rateLimit = new Map<string, { count: number; reset: number }>();
 const RATE_LIMIT_WINDOW = 60 * 1000; // 1 minute
 const MAX_REQUESTS = 100; // 100 requests per minute
 
-export async function middleware(request: NextRequest) {
+export async function proxy(request: NextRequest) {
     const { pathname } = request.nextUrl;
     const ip = request.headers.get("x-forwarded-for")?.split(",")[0] || "127.0.0.1";
 
@@ -70,10 +70,10 @@ export async function middleware(request: NextRequest) {
             try {
                 const secret = new TextEncoder().encode(JWT_SECRET);
                 await jwtVerify(token, secret);
-                console.log("Middleware: Valid token found on auth page, redirecting to home.");
+                console.log("Proxy: Valid token found on auth page, redirecting to home.");
                 return NextResponse.redirect(new URL("/", request.url));
             } catch (e) {
-                console.log("Middleware: Token invalid/expired on auth page, allowing access.");
+                console.log("Proxy: Token invalid/expired on auth page, allowing access.");
                 // Token is invalid - allow access (and maybe response.cookies.delete could go here if we could modify response)
             }
         }
@@ -88,8 +88,8 @@ export async function middleware(request: NextRequest) {
 
     const response = NextResponse.next();
 
-    // Additional security headers that can be set via middleware
-    response.headers.set('X-XSS-Protection', '1; mode=block');
+    // Additional security headers that can be set via proxy
+    response.headers.set("X-XSS-Protection", "1; mode=block");
 
     return response;
 }

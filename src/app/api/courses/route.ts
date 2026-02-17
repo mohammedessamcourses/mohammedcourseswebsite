@@ -5,6 +5,9 @@ import { verifyToken } from "@/lib/auth";
 import { cookies } from "next/headers";
 import { revalidatePath } from "next/cache";
 
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 export async function GET() {
     try {
         await dbConnect();

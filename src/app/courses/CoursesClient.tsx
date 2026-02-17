@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { GameCard } from "@/components/ui/GameCard";
 import { GameButton } from "@/components/ui/GameButton";
@@ -12,14 +12,38 @@ interface CoursesClientProps {
 }
 
 export default function CoursesClient({ courses }: CoursesClientProps) {
+    const [liveCourses, setLiveCourses] = useState<any[]>(courses || []);
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
     const [searchQuery, setSearchQuery] = useState("");
     const [selectedLanguage, setSelectedLanguage] = useState<string | null>(null);
 
-    // Get all unique languages
-    const allLanguages = Array.from(new Set(courses.flatMap(c => c.languages || [])));
+    useEffect(() => {
+        let isMounted = true;
 
-    const filteredCourses = courses.filter(course => {
+        const fetchLatestCourses = async () => {
+            try {
+                const res = await fetch(`/api/courses?t=${Date.now()}`, { cache: "no-store" });
+                if (!res.ok) return;
+                const data = await res.json();
+                if (isMounted && Array.isArray(data.courses)) {
+                    setLiveCourses(data.courses);
+                }
+            } catch {
+                // keep server-provided courses as fallback
+            }
+        };
+
+        fetchLatestCourses();
+
+        return () => {
+            isMounted = false;
+        };
+    }, []);
+
+    // Get all unique languages
+    const allLanguages = Array.from(new Set(liveCourses.flatMap(c => c.languages || [])));
+
+    const filteredCourses = liveCourses.filter(course => {
         const matchesSearch = course.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
             course.description.toLowerCase().includes(searchQuery.toLowerCase());
         const matchesLang = selectedLanguage ? course.languages?.includes(selectedLanguage) : true;
@@ -95,7 +119,7 @@ export default function CoursesClient({ courses }: CoursesClientProps) {
                                                 <span className="text-sm font-bold bg-primary/20 text-primary px-3 py-1 rounded font-mono whitespace-nowrap self-start md:self-auto uppercase tracking-tighter">FREE ACCESS</span>
                                             ) : (
                                                 <div className="flex flex-col items-end">
-                                                    {course.discountPrice !== undefined && course.discountPrice !== null && course.discountPrice < course.price ? (
+                                                    {course.discountActive && course.discountPrice !== undefined && course.discountPrice !== null && course.discountPrice < course.price ? (
                                                         <>
                                                             <span className="text-[10px] font-mono text-slate-500 line-through decoration-arcade/50">{course.price} EGP</span>
                                                             <span className="text-sm md:text-base font-bold font-press-start text-arcade whitespace-nowrap animate-pulse">

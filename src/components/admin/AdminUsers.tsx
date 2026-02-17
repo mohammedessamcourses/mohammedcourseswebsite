@@ -55,9 +55,11 @@ export function AdminUsers() {
 
     const fetchUsers = async (searchQuery?: string) => {
         try {
-            const url = searchQuery
-                ? `/api/admin/users?search=${encodeURIComponent(searchQuery)}`
-                : "/api/admin/users";
+            const params = new URLSearchParams({ details: "true" });
+            if (searchQuery) {
+                params.set("search", searchQuery);
+            }
+            const url = `/api/admin/users?${params.toString()}`;
             const res = await fetch(url);
             if (res.ok) {
                 const data = await res.json();
@@ -363,7 +365,7 @@ export function AdminUsers() {
                                 <div className="space-y-2">
                                     {selectedUser.unlockedCourses.map((course, idx) => (
                                         <div key={course?._id || `${selectedUser._id}-unlock-${idx}`} className="flex justify-between items-center bg-slate-800 p-3 rounded">
-                                            <span className="text-white">{course.title}</span>
+                                            <span className="text-white">{course?.title || "Untitled course"}</span>
                                             <div className="flex items-center gap-2">
                                                 <span className="text-xs text-slate-500">{course.isFree ? "FREE" : `${course.price} EGP`}</span>
                                                 <button onClick={() => revokeAccess(selectedUser._id, course._id)} className="text-red-400 hover:text-red-300">

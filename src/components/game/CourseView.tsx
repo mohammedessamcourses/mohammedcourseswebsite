@@ -16,6 +16,13 @@ interface CourseViewProps {
     hasPendingAccessRequest?: boolean;
 }
 
+declare global {
+    interface Window {
+        YT?: any;
+        onYouTubeIframeAPIReady?: () => void;
+    }
+}
+
 export function CourseView({ course, user, hasPendingCertificate = false, hasPendingAccessRequest = false }: CourseViewProps) {
     const router = useRouter();
     const [currentSection, setCurrentSection] = useState(course.sections[0]);
@@ -26,13 +33,23 @@ export function CourseView({ course, user, hasPendingCertificate = false, hasPen
     const [isPendingAccess, setIsPendingAccess] = useState(hasPendingAccessRequest);
     const [showVideoModal, setShowVideoModal] = useState(false);
     const [activeVideoId, setActiveVideoId] = useState<string | null>(null);
+    const [activeVideoSectionId, setActiveVideoSectionId] = useState<string | null>(null);
+    const [videoResumeTimes, setVideoResumeTimes] = useState<Record<string, number>>({});
     const videoFrameRef = useRef<HTMLIFrameElement | null>(null);
+    const youtubePlayerRef = useRef<any>(null);
+    const videoResumeTimesRef = useRef<Record<string, number>>({});
 
     const isDiscounted = !course.isFree
         && course.discountActive
         && course.discountPrice !== undefined
         && course.discountPrice !== null
         && course.discountPrice < course.price;
+    const certificateEnabled = !(
+        course.certificateEnabled === false ||
+        course.certificateEnabled === "false" ||
+        course.certificateEnabled === 0 ||
+        course.certificateEnabled === "0"
+    );
     const effectivePrice = course.isFree ? 0 : (isDiscounted ? course.discountPrice : course.price);
 
     // Payment Form State
@@ -41,6 +58,49 @@ export function CourseView({ course, user, hasPendingCertificate = false, hasPen
 
     const isCourseLocked = course.isLocked;
     const storageKey = `course:${course._id}:currentSection`;
+    const videoResumeStorageKey = `course:${course._id}:videoResumeTimes`;
+
+    const formatVideoTime = (seconds: number) => {
+        const safeSeconds = Math.max(0, Math.floor(seconds));
+        const mins = Math.floor(safeSeconds / 60);
+        const secs = safeSeconds % 60;
+        return `${String(mins).padStart(2, "0")}:${String(secs).padStart(2, "0")}`;
+    };
+
+    const persistVideoStopTime = (sectionId: string, seconds: number) => {
+        if (!sectionId || !Number.isFinite(seconds) || seconds < 1) return;
+
+        const normalizedTime = Math.floor(seconds);
+        setVideoResumeTimes(prev => {
+            const next = { ...prev, [sectionId]: normalizedTime };
+            if (typeof window !== "undefined") {
+                window.localStorage.setItem(videoResumeStorageKey, JSON.stringify(next));
+            }
+            return next;
+        });
+    };
+
+    const closeVideoModal = () => {
+        if (activeVideoSectionId && youtubePlayerRef.current?.getCurrentTime) {
+            const currentTime = Number(youtubePlayerRef.current.getCurrentTime() || 0);
+            persistVideoStopTime(activeVideoSectionId, currentTime);
+        }
+
+        if (youtubePlayerRef.current?.destroy) {
+            youtubePlayerRef.current.destroy();
+            youtubePlayerRef.current = null;
+        }
+
+        setShowVideoModal(false);
+        setActiveVideoId(null);
+        setActiveVideoSectionId(null);
+    };
+
+    const openVideoModal = (videoId: string, sectionId: string) => {
+        setActiveVideoId(videoId);
+        setActiveVideoSectionId(sectionId);
+        setShowVideoModal(true);
+    };
 
     // Restore last viewed section on refresh
     useEffect(() => {
@@ -60,6 +120,78 @@ export function CourseView({ course, user, hasPendingCertificate = false, hasPen
         if (typeof window === "undefined") return;
         window.localStorage.setItem(storageKey, String(currentSection._id));
     }, [currentSection?._id, storageKey]);
+
+    useEffect(() => {
+        if (typeof window === "undefined") return;
+        const raw = window.localStorage.getItem(videoResumeStorageKey);
+        if (!raw) return;
+
+        try {
+            const parsed = JSON.parse(raw) as Record<string, number>;
+            setVideoResumeTimes(parsed || {});
+        } catch {
+            setVideoResumeTimes({});
+        }
+    }, [videoResumeStorageKey]);
+
+    useEffect(() => {
+        videoResumeTimesRef.current = videoResumeTimes;
+    }, [videoResumeTimes]);
+
+    useEffect(() => {
+        if (!showVideoModal || !activeVideoId || !activeVideoSectionId) return;
+
+        let cancelled = false;
+
+        const mountPlayer = () => {
+            if (cancelled || !window.YT?.Player) return;
+
+            if (youtubePlayerRef.current?.destroy) {
+                youtubePlayerRef.current.destroy();
+            }
+
+            youtubePlayerRef.current = new window.YT.Player("course-video-player", {
+                events: {
+                    onReady: (event: any) => {
+                        const resumeAt = videoResumeTimesRef.current[activeVideoSectionId] || 0;
+                        if (resumeAt > 0) {
+                            event.target.seekTo(resumeAt, true);
+                        }
+                    },
+                    onStateChange: (event: any) => {
+                        const playerState = window.YT?.PlayerState;
+                        if (!playerState) return;
+
+                        if (event.data === playerState.PAUSED || event.data === playerState.ENDED) {
+                            const currentTime = Number(event.target?.getCurrentTime?.() || 0);
+                            persistVideoStopTime(activeVideoSectionId, currentTime);
+                        }
+                    }
+                }
+            });
+        };
+
+        if (window.YT?.Player) {
+            mountPlayer();
+        } else {
+            const prevReady = window.onYouTubeIframeAPIReady;
+            window.onYouTubeIframeAPIReady = () => {
+                prevReady?.();
+                mountPlayer();
+            };
+
+            const existingScript = document.querySelector('script[src="https://www.youtube.com/iframe_api"]');
+            if (!existingScript) {
+                const script = document.createElement("script");
+                script.src = "https://www.youtube.com/iframe_api";
+                document.body.appendChild(script);
+            }
+        }
+
+        return () => {
+            cancelled = true;
+        };
+    }, [showVideoModal, activeVideoId, activeVideoSectionId]);
 
     // Check if all sections are completed for certificate eligibility
     const allSectionsCompleted = course.sections.every((s: any) => completedSections.includes(s._id));
@@ -209,45 +341,47 @@ export function CourseView({ course, user, hasPendingCertificate = false, hasPen
                     STAGES
                 </div>
                 {/* Certificate / Access Button Section */}
-                <div className="border-b border-slate-800 bg-slate-800/20">
-                    {!isCourseLocked ? (
-                        <div className="p-3 sm:p-4">
-                            {!allSectionsCompleted ? (
-                                <div className="w-full flex flex-col items-center justify-center gap-1 p-3 bg-slate-800/50 text-slate-500 border border-slate-700 rounded font-mono text-sm cursor-not-allowed text-center">
-                                    <Award className="w-4 h-4" />
-                                    <span className="text-[10px]">Complete all sections to claim award</span>
-                                </div>
-                            ) : hasPendingCertificate ? (
-                                <div className="w-full flex items-center justify-center gap-2 p-3 bg-yellow-500/10 text-yellow-500 border border-yellow-500/50 rounded font-mono text-xs cursor-not-allowed">
-                                    <Award className="w-4 h-4" /> CERTIFICATE PENDING
-                                </div>
-                            ) : (
-                                <button
-                                    onClick={() => setShowCertificateModal(true)}
-                                    className="w-full flex items-center justify-center gap-2 p-3 bg-yellow-500/10 text-yellow-500 border border-yellow-500/50 hover:bg-yellow-500/20 transition rounded font-mono text-sm"
-                                >
-                                    <Award className="w-4 h-4" /> CLAIM CERTIFICATE
-                                </button>
-                            )}
-                        </div>
-                    ) : (
-                        <div className="p-3 sm:p-4">
-                            {isPendingAccess ? (
-                                <div className="w-full p-3 bg-yellow-500/10 text-yellow-500 border border-yellow-500/50 rounded font-mono text-[10px] sm:text-xs text-center flex items-center justify-center gap-2">
-                                    <Lock className="w-3 h-3" /> VERIFICATION PENDING
-                                </div>
-                            ) : (
-                                <GameButton
-                                    variant="secondary"
-                                    className="w-full text-[10px] sm:text-xs font-press-start shadow-[0_0_15px_rgba(255,0,255,0.3)]"
-                                    onClick={() => setShowUnlockModal(true)}
-                                >
-                                    REQUEST ACCESS
-                                </GameButton>
-                            )}
-                        </div>
-                    )}
-                </div>
+                {(isCourseLocked || certificateEnabled) && (
+                    <div className="border-b border-slate-800 bg-slate-800/20">
+                        {!isCourseLocked ? (
+                            <div className="p-3 sm:p-4">
+                                {!allSectionsCompleted ? (
+                                    <div className="w-full flex flex-col items-center justify-center gap-1 p-3 bg-slate-800/50 text-slate-500 border border-slate-700 rounded font-mono text-sm cursor-not-allowed text-center">
+                                        <Award className="w-4 h-4" />
+                                        <span className="text-[10px]">Complete all sections to claim award</span>
+                                    </div>
+                                ) : hasPendingCertificate ? (
+                                    <div className="w-full flex items-center justify-center gap-2 p-3 bg-yellow-500/10 text-yellow-500 border border-yellow-500/50 rounded font-mono text-xs cursor-not-allowed">
+                                        <Award className="w-4 h-4" /> CERTIFICATE PENDING
+                                    </div>
+                                ) : (
+                                    <button
+                                        onClick={() => setShowCertificateModal(true)}
+                                        className="w-full flex items-center justify-center gap-2 p-3 bg-yellow-500/10 text-yellow-500 border border-yellow-500/50 hover:bg-yellow-500/20 transition rounded font-mono text-sm"
+                                    >
+                                        <Award className="w-4 h-4" /> CLAIM CERTIFICATE
+                                    </button>
+                                )}
+                            </div>
+                        ) : (
+                            <div className="p-3 sm:p-4">
+                                {isPendingAccess ? (
+                                    <div className="w-full p-3 bg-yellow-500/10 text-yellow-500 border border-yellow-500/50 rounded font-mono text-[10px] sm:text-xs text-center flex items-center justify-center gap-2">
+                                        <Lock className="w-3 h-3" /> VERIFICATION PENDING
+                                    </div>
+                                ) : (
+                                    <GameButton
+                                        variant="secondary"
+                                        className="w-full text-[10px] sm:text-xs font-press-start shadow-[0_0_15px_rgba(255,0,255,0.3)]"
+                                        onClick={() => setShowUnlockModal(true)}
+                                    >
+                                        REQUEST ACCESS
+                                    </GameButton>
+                                )}
+                            </div>
+                        )}
+                    </div>
+                )}
 
                 <div className="flex flex-col">
                     {course.sections.map((section: any, index: number) => {
@@ -373,8 +507,7 @@ export function CourseView({ course, user, hasPendingCertificate = false, hasPen
                                                                                     <button
                                                                                         type="button"
                                                                                         onClick={() => {
-                                                                                            setActiveVideoId(videoId);
-                                                                                            setShowVideoModal(true);
+                                                                                            openVideoModal(videoId, String(currentSection._id));
                                                                                         }}
                                                                                         className="w-full h-full relative group"
                                                                                         aria-label="Play video"
@@ -407,6 +540,13 @@ export function CourseView({ course, user, hasPendingCertificate = false, hasPen
                                                                             );
                                                                         })()}
                                                                     </div>
+                                                                    {!!videoResumeTimes[String(currentSection._id)] && (
+                                                                        <div className="mb-6 bg-primary/10 border border-primary/40 rounded p-3 text-center">
+                                                                            <p className="text-sm sm:text-base font-mono text-primary">
+                                                                                LAST WATCHED POINT: {formatVideoTime(videoResumeTimes[String(currentSection._id)])}
+                                                                            </p>
+                                                                        </div>
+                                                                    )}
                                                                     {/* Video Security Disclaimer */}
                                                                     <div className="mb-6 p-3 bg-red-400/10 border border-red-400/20 rounded flex items-center gap-3">
                                                                         <div className="w-8 h-8 rounded-full bg-red-400/20 flex items-center justify-center shrink-0">
@@ -524,8 +664,7 @@ export function CourseView({ course, user, hasPendingCertificate = false, hasPen
                             </button>
                             <button
                                 onClick={() => {
-                                    setShowVideoModal(false);
-                                    setActiveVideoId(null);
+                                    closeVideoModal();
                                 }}
                                 className="text-slate-300 hover:text-white font-mono text-sm"
                             >
@@ -534,8 +673,9 @@ export function CourseView({ course, user, hasPendingCertificate = false, hasPen
                         </div>
                         <div className="aspect-video bg-black rounded border-2 border-slate-800 overflow-hidden">
                             <iframe
+                                id="course-video-player"
                                 ref={videoFrameRef}
-                                src={`https://www.youtube-nocookie.com/embed/${activeVideoId}?autoplay=1&playsinline=1&modestbranding=1&rel=0&iv_load_policy=3&fs=1`}
+                                src={`https://www.youtube-nocookie.com/embed/${activeVideoId}?autoplay=1&playsinline=1&modestbranding=1&rel=0&iv_load_policy=3&fs=1&enablejsapi=1`}
                                 title="Course video"
                                 className="w-full h-full pointer-events-auto"
                                 allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture; web-share"
@@ -632,7 +772,7 @@ export function CourseView({ course, user, hasPendingCertificate = false, hasPen
 
             {/* Certificate Modal */}
             {
-                showCertificateModal && (
+                showCertificateModal && certificateEnabled && (
                     <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-[10050] overflow-y-auto flex items-start sm:items-center justify-center p-3 sm:p-4 py-6 sm:py-4">
                         <GameCard className="w-full max-w-sm sm:max-w-lg bg-slate-900 border-yellow-500 shadow-[0_0_50px_rgba(234,179,8,0.1)] my-auto p-4 sm:p-6">
                             <Award className="w-10 h-10 sm:w-12 sm:h-12 text-yellow-500 mb-4 mx-auto" />

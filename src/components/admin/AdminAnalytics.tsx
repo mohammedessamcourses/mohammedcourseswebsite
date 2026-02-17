@@ -1,6 +1,7 @@
 
 "use client";
 
+import { useEffect, useState } from "react";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line } from "recharts";
 
 interface AdminAnalyticsProps {
@@ -9,6 +10,12 @@ interface AdminAnalyticsProps {
 }
 
 export function AdminAnalytics({ users, requests }: AdminAnalyticsProps) {
+    const [mounted, setMounted] = useState(false);
+
+    useEffect(() => {
+        setMounted(true);
+    }, []);
+
     // Process User Growth Data (Last 7 Days)
     const processUserGrowth = () => {
         const last7Days = [...Array(7)].map((_, i) => {
@@ -53,18 +60,22 @@ export function AdminAnalytics({ users, requests }: AdminAnalyticsProps) {
             <div className="bg-slate-900 border border-slate-800 p-6 rounded shadow-lg">
                 <h3 className="text-lg font-heading text-slate-300 mb-6">USER ACQUISITION (7 DAYS)</h3>
                 <div className="h-[300px] w-full">
-                    <ResponsiveContainer width="100%" height="100%">
-                        <LineChart data={userData}>
-                            <CartesianGrid strokeDasharray="3 3" stroke="#334155" />
-                            <XAxis dataKey="date" stroke="#94a3b8" fontSize={12} />
-                            <YAxis stroke="#94a3b8" fontSize={12} />
-                            <Tooltip
-                                contentStyle={{ backgroundColor: '#0f172a', borderColor: '#334155', color: '#fff' }}
-                                itemStyle={{ color: '#3b82f6' }}
-                            />
-                            <Line type="monotone" dataKey="users" stroke="#3b82f6" strokeWidth={3} dot={{ r: 4, fill: '#3b82f6' }} activeDot={{ r: 6 }} />
-                        </LineChart>
-                    </ResponsiveContainer>
+                    {mounted ? (
+                        <ResponsiveContainer width="100%" height="100%">
+                            <LineChart data={userData}>
+                                <CartesianGrid strokeDasharray="3 3" stroke="#334155" />
+                                <XAxis dataKey="date" stroke="#94a3b8" fontSize={12} />
+                                <YAxis stroke="#94a3b8" fontSize={12} />
+                                <Tooltip
+                                    contentStyle={{ backgroundColor: '#0f172a', borderColor: '#334155', color: '#fff' }}
+                                    itemStyle={{ color: '#3b82f6' }}
+                                />
+                                <Line type="monotone" dataKey="users" stroke="#3b82f6" strokeWidth={3} dot={{ r: 4, fill: '#3b82f6' }} activeDot={{ r: 6 }} />
+                            </LineChart>
+                        </ResponsiveContainer>
+                    ) : (
+                        <div className="h-full w-full bg-slate-800/30 rounded animate-pulse" />
+                    )}
                 </div>
             </div>
 
@@ -72,7 +83,9 @@ export function AdminAnalytics({ users, requests }: AdminAnalyticsProps) {
             <div className="bg-slate-900 border border-slate-800 p-6 rounded shadow-lg">
                 <h3 className="text-lg font-heading text-slate-300 mb-6">REVENUE DEMAND (BY MISSION)</h3>
                 <div className="h-[300px] w-full">
-                    {revenueData.length > 0 ? (
+                    {!mounted ? (
+                        <div className="h-full w-full bg-slate-800/30 rounded animate-pulse" />
+                    ) : revenueData.length > 0 ? (
                         <ResponsiveContainer width="100%" height="100%">
                             <BarChart data={revenueData} layout="vertical">
                                 <CartesianGrid strokeDasharray="3 3" stroke="#334155" />

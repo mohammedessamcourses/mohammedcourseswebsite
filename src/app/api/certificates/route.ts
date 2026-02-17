@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import dbConnect from "@/lib/db";
 import CertificateRequest from "@/models/CertificateRequest";
+import Course from "@/models/Course";
 import { cookies } from "next/headers";
 import { verifyToken } from "@/lib/auth";
 
@@ -25,6 +26,15 @@ export async function POST(req: Request) {
 
         const body = await req.json();
         const { courseId, fullName, phoneNumber } = body;
+
+        const course = await Course.findById(courseId).select("certificateEnabled").lean();
+        if (!course) {
+            return NextResponse.json({ error: "Course not found" }, { status: 404 });
+        }
+
+        if ((course as any).certificateEnabled === false) {
+            return NextResponse.json({ error: "Certificate is not available for this course" }, { status: 400 });
+        }
 
         // Check if already requested
         const existing = await CertificateRequest.findOne({ userId, courseId });

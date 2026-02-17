@@ -28,6 +28,7 @@ interface Course {
     sections: any[];
     price: number;
     isFree: boolean;
+    certificateEnabled?: boolean;
 }
 
 interface ContactMessage {
@@ -56,6 +57,7 @@ export default function AdminDashboard() {
         price: 0,
         isFree: false,
         isFeatured: false,
+        certificateEnabled: true,
         thumbnail: "",
         difficulty: "beginner",
         discountPrice: 0,
@@ -254,6 +256,7 @@ export default function AdminDashboard() {
                     price: 0,
                     isFree: false,
                     isFeatured: false,
+                    certificateEnabled: true,
                     thumbnail: "",
                     difficulty: "beginner",
                     discountPrice: 0,
@@ -514,6 +517,7 @@ export default function AdminDashboard() {
                                         {newCourse.thumbnail && <div className="text-xs text-primary truncate px-2">{newCourse.thumbnail}</div>}
                                         <label className="flex items-center gap-2 text-white cursor-pointer"><input type="checkbox" checked={newCourse.isFree} onChange={e => setNewCourse({ ...newCourse, isFree: e.target.checked, price: e.target.checked ? 0 : newCourse.price })} /> Free Access</label>
                                         <label className="flex items-center gap-2 text-white cursor-pointer"><input type="checkbox" checked={newCourse.isFeatured} onChange={e => setNewCourse({ ...newCourse, isFeatured: e.target.checked })} /> Featured</label>
+                                        <label className="flex items-center gap-2 text-white cursor-pointer"><input type="checkbox" checked={newCourse.certificateEnabled} onChange={e => setNewCourse({ ...newCourse, certificateEnabled: e.target.checked })} /> Certificate Enabled</label>
                                     </div>
 
                                     {/* Discount Row */}

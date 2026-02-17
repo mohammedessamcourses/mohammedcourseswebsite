@@ -10,6 +10,7 @@ export interface ICourse extends Document {
     price: number;
     discountPrice?: number;
     discountActive: boolean;
+    certificateEnabled: boolean;
     isFree: boolean;
     isFeatured: boolean;
     sections: mongoose.Types.ObjectId[];
@@ -31,6 +32,7 @@ const CourseSchema: Schema<ICourse> = new Schema(
         price: { type: Number, default: 0 },
         discountPrice: { type: Number },
         discountActive: { type: Boolean, default: false },
+        certificateEnabled: { type: Boolean, default: true },
         isFree: { type: Boolean, default: false },
         isFeatured: { type: Boolean, default: false },
         sections: [{ type: Schema.Types.ObjectId, ref: "Section" }],
