@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabase";
 
+export const runtime = "nodejs";
+
 export async function POST(req: Request) {
     try {
         if (!supabaseAdmin) {
@@ -11,6 +13,15 @@ export async function POST(req: Request) {
 
         if (!file) {
             return NextResponse.json({ error: "No file received." }, { status: 400 });
+        }
+
+        if (!file.type?.startsWith("image/")) {
+            return NextResponse.json({ error: "Only image files are allowed." }, { status: 400 });
+        }
+
+        const maxSizeBytes = 10 * 1024 * 1024;
+        if (file.size > maxSizeBytes) {
+            return NextResponse.json({ error: "Image is too large. Max size is 10MB." }, { status: 400 });
         }
 
         const buffer = await file.arrayBuffer();
@@ -35,17 +46,18 @@ export async function POST(req: Request) {
 
         if (error) {
             console.error("Supabase Upload Error:", error);
-            return NextResponse.json({ error: "Upload to storage failed." }, { status: 500 });
+            return NextResponse.json({ error: error.message || "Upload to storage failed." }, { status: 500 });
         }
 
         // Get Public URL
         const { data: { publicUrl } } = supabaseAdmin.storage
             .from("coursespictures")
-            .getPublicUrl(filename);
+            .getPublicUrl(data.path || filename);
 
         return NextResponse.json({
             success: true,
-            url: publicUrl
+            url: publicUrl,
+            path: data.path || filename,
         });
 
     } catch (error) {

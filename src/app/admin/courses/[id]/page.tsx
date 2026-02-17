@@ -126,6 +126,7 @@ export default function EditCoursePage() {
     const [course, setCourse] = useState<Course | null>(null);
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
+    const [uploadingImage, setUploadingImage] = useState(false);
 
     // Add Section State
     const [newSection, setNewSection] = useState({ title: "", content: "", type: "text", videoUrl: "", linkUrl: "", isFree: false });
@@ -243,16 +244,43 @@ export default function EditCoursePage() {
         const file = e.target.files?.[0];
         if (!file || !course) return;
 
+        setUploadingImage(true);
         const formData = new FormData();
         formData.append("file", file);
 
         try {
             const res = await fetch("/api/upload", { method: "POST", body: formData });
             const data = await res.json();
-            if (res.ok) {
-                setCourse({ ...course, thumbnail: data.url });
+            if (!res.ok) {
+                alert(data?.error || "Upload failed");
+                return;
             }
-        } catch (err) { alert("Upload failed"); }
+
+            const nextThumbnail = data.url;
+            setCourse(prev => prev ? { ...prev, thumbnail: nextThumbnail } : prev);
+
+            const persistRes = await fetch(`/api/courses/${courseId}`, {
+                method: "PUT",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ thumbnail: nextThumbnail }),
+            });
+            const persistData = await persistRes.json();
+
+            if (!persistRes.ok) {
+                alert(persistData?.error || "Image uploaded but course update failed");
+                return;
+            }
+
+            if (persistData?.course?.thumbnail) {
+                setCourse(prev => prev ? { ...prev, thumbnail: persistData.course.thumbnail } : prev);
+            }
+        } catch (err) {
+            console.error(err);
+            alert("Upload failed");
+        } finally {
+            setUploadingImage(false);
+            e.target.value = "";
+        }
     };
 
     const handleQuizCsvImport = async (file?: File) => {
@@ -480,7 +508,8 @@ export default function EditCoursePage() {
                                 <div>
                                     <label className="text-xs text-slate-500 font-mono mb-1 block">THUMBNAIL</label>
                                     <div className="flex items-center gap-2">
-                                        <input type="file" onChange={handleImageUpload} className="text-xs text-slate-400" />
+                                        <input type="file" accept="image/*" onChange={handleImageUpload} disabled={uploadingImage} className="text-xs text-slate-400" />
+                                        {uploadingImage && <span className="text-xs text-primary">Uploading...</span>}
                                         {course.thumbnail && <img src={course.thumbnail} alt="Thumb" className="w-10 h-10 object-cover rounded border border-slate-700" />}
                                     </div>
                                 </div>

@@ -7,9 +7,29 @@ import { verifyToken } from "@/lib/auth";
 import { cookies } from "next/headers";
 import mongoose from "mongoose";
 import { revalidatePath } from "next/cache";
+import { supabaseAdmin } from "@/lib/supabase";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
+
+const COURSE_PICTURES_BUCKET = "coursespictures";
+
+function extractCoursePicturePath(url?: string | null) {
+    if (!url) return null;
+
+    try {
+        const parsed = new URL(url);
+        const prefix = `/storage/v1/object/public/${COURSE_PICTURES_BUCKET}/`;
+        const pathWithPrefix = parsed.pathname;
+
+        if (!pathWithPrefix.startsWith(prefix)) return null;
+
+        const objectPath = pathWithPrefix.slice(prefix.length);
+        return objectPath ? decodeURIComponent(objectPath) : null;
+    } catch {
+        return null;
+    }
+}
 
 export async function GET(
     req: Request,
@@ -153,6 +173,13 @@ export async function PUT(
             return NextResponse.json({ error: "Forbidden" }, { status: 403 });
         }
 
+        const existingCourse = await Course.findById(id).select("thumbnail").lean();
+        if (!existingCourse) {
+            return NextResponse.json({ error: "Not Found" }, { status: 404 });
+        }
+
+        const previousThumbnail = typeof (existingCourse as any).thumbnail === "string" ? (existingCourse as any).thumbnail : "";
+
         const updatePayload = { ...body } as Record<string, any>;
         if ("certificateEnabled" in updatePayload) {
             const rawValue = updatePayload.certificateEnabled;
@@ -164,6 +191,15 @@ export async function PUT(
                 updatePayload.certificateEnabled = !!rawValue;
             }
         }
+
+        const nextThumbnail = typeof updatePayload.thumbnail === "string" ? updatePayload.thumbnail : previousThumbnail;
+        const shouldDeletePreviousThumbnail =
+            typeof updatePayload.thumbnail === "string" &&
+            !!previousThumbnail &&
+            previousThumbnail !== nextThumbnail;
+        const previousThumbnailPath = shouldDeletePreviousThumbnail
+            ? extractCoursePicturePath(previousThumbnail)
+            : null;
 
         const updateResult = await Course.updateOne(
             { _id: id },
@@ -180,6 +216,16 @@ export async function PUT(
         revalidatePath("/", "page");
         revalidatePath("/dashboard", "page");
         revalidatePath("/admin", "page");
+
+        if (previousThumbnailPath && supabaseAdmin) {
+            const { error: removeError } = await supabaseAdmin.storage
+                .from(COURSE_PICTURES_BUCKET)
+                .remove([previousThumbnailPath]);
+
+            if (removeError) {
+                console.warn("Failed to remove old course thumbnail from Supabase:", removeError.message);
+            }
+        }
 
         const persistedCourse = await Course.findById(id).populate("sections").lean();
         if (!persistedCourse) {

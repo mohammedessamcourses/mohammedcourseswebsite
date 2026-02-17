@@ -228,9 +228,12 @@ export default function AdminDashboard() {
         try {
             const res = await fetch("/api/upload", { method: "POST", body: formData });
             const data = await res.json();
-            if (res.ok) {
-                setNewCourse({ ...newCourse, thumbnail: data.url });
+            if (!res.ok) {
+                alert(data?.error || "Upload failed");
+                return;
             }
+
+            setNewCourse({ ...newCourse, thumbnail: data.url });
         } catch (err) {
             console.error(err);
             alert("Upload failed");
