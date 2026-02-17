@@ -84,11 +84,18 @@ export default function LoginPage() {
                     </div>
 
                     <GameButton
-                        className="w-full mt-4"
+                        className="w-full mt-4 !tracking-normal !text-sm sm:!text-lg leading-tight"
                         size="lg"
                         disabled={loading}
                     >
-                        {loading ? "AUTHENTICATING..." : "ENTER WORLD"}
+                        {loading ? (
+                            <>
+                                <span className="sm:hidden">AUTH...</span>
+                                <span className="hidden sm:inline">AUTHENTICATING...</span>
+                            </>
+                        ) : (
+                            "ENTER WORLD"
+                        )}
                     </GameButton>
                 </form>
 

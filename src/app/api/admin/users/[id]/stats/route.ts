@@ -40,9 +40,10 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
         user.level = calculateLevel(user.xp || 0);
 
         if (typeof streakCount === "number") {
+            const defaultLastActiveDate = new Date(Date.now() - 24 * 60 * 60 * 1000);
             user.streak = {
                 count: Math.max(0, streakCount),
-                lastActiveDate: lastActiveDate ? new Date(lastActiveDate) : new Date(),
+                lastActiveDate: lastActiveDate ? new Date(lastActiveDate) : defaultLastActiveDate,
             };
         }
 

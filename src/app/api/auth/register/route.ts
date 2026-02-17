@@ -5,12 +5,18 @@ import { hashPassword, signToken } from "@/lib/auth";
 import { cookies } from "next/headers";
 import { rateLimit } from "@/lib/rate-limit";
 
+const REGISTER_RATE_LIMIT = {
+    key: "register",
+    maxAttempts: 5,
+    windowMs: 15 * 60 * 1000,
+};
+
 export async function POST(req: Request) {
     try {
         const ip = req.headers.get("x-forwarded-for")?.split(",")[0] || "127.0.0.1";
 
         // Check rate limit for registration to prevent spam
-        const limitStatus = rateLimit.check(ip);
+        const limitStatus = rateLimit.check(ip, REGISTER_RATE_LIMIT);
         if (limitStatus.limited) {
             const remainingMinutes = Math.ceil((limitStatus.resetTime - Date.now()) / 60000);
             return NextResponse.json(
@@ -52,7 +58,7 @@ export async function POST(req: Request) {
         });
 
         // Clear rate limit on success (optional, but good for genuine users)
-        rateLimit.clear(ip);
+        rateLimit.clear(ip, REGISTER_RATE_LIMIT);
 
         const token = signToken({ userId: user._id as unknown as string, role: user.role });
 
@@ -77,7 +83,7 @@ export async function POST(req: Request) {
     } catch (error) {
         // Increment rate limit on error to prevent bruteforce/spam
         const ip = req.headers.get("x-forwarded-for")?.split(",")[0] || "127.0.0.1";
-        rateLimit.increment(ip);
+        rateLimit.increment(ip, REGISTER_RATE_LIMIT);
 
         console.error("Register Error:", error);
         return NextResponse.json(

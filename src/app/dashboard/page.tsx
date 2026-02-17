@@ -26,23 +26,13 @@ async function getData() {
     if (!payload) return { courses: [], user: null, certificateRequests: [] };
 
     await dbConnect();
-    const user = await User.findById(payload.userId).lean();
+    const userDoc = await User.findById(payload.userId);
+    if (!userDoc) return { courses: [], user: null, certificateRequests: [] };
 
-    if (user) {
-        // We need the Mongoose document for the method, so we might need to re-fetch or cast if using lean()
-        // Ideally, separate the updateStreak logic, but for now we'll do a quick specific fetch for streak update if needed
-        // or just accept the tiny overhead of one non-lean fetch for the user if we want to call methods.
-        // Optimization: Let's keep the user fetch lean for display speed, and do a separate fire-and-forget for streak if strict types allow.
-        // Actually, to call `updateStreak(user)`, user needs to be a document.
-        // Let's stick to finding the user as a Document for now to keep existing logic working, but optimize the course fetch heavily.
-        const userDoc = await User.findById(payload.userId);
-        if (userDoc) {
-            const { updateStreak } = await import("@/lib/gamification");
-            await updateStreak(userDoc);
-        }
-    }
+    const { updateStreak } = await import("@/lib/gamification");
+    await updateStreak(userDoc);
 
-    if (!user) return { courses: [], user: null, certificateRequests: [] };
+    const user = userDoc.toObject();
 
     // Optimize: Filter at DB level
     let query = {};

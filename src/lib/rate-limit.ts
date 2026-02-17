@@ -9,30 +9,43 @@ const rateLimits = new Map<string, RateLimitInfo>();
 const WINDOW_MS = 15 * 60 * 1000; // 15 minutes
 const MAX_ATTEMPTS = 5;
 
+type RateLimitOptions = {
+    key?: string;
+    maxAttempts?: number;
+    windowMs?: number;
+};
+
+const getScopedKey = (ip: string, options?: RateLimitOptions) => `${options?.key || "default"}:${ip}`;
+const getLimit = (options?: RateLimitOptions) => options?.maxAttempts ?? MAX_ATTEMPTS;
+const getWindow = (options?: RateLimitOptions) => options?.windowMs ?? WINDOW_MS;
+
 export const rateLimit = {
-    check: (ip: string) => {
+    check: (ip: string, options?: RateLimitOptions) => {
         const now = Date.now();
-        const info = rateLimits.get(ip);
+        const scopedKey = getScopedKey(ip, options);
+        const limit = getLimit(options);
+        const window = getWindow(options);
+        const info = rateLimits.get(scopedKey);
 
         if (!info) {
             return {
                 limited: false,
-                remainingAttempts: MAX_ATTEMPTS,
-                resetTime: now + WINDOW_MS
+                remainingAttempts: limit,
+                resetTime: now + window
             };
         }
 
         if (now > info.reset) {
             // Window expired, reset
-            rateLimits.delete(ip);
+            rateLimits.delete(scopedKey);
             return {
                 limited: false,
-                remainingAttempts: MAX_ATTEMPTS,
-                resetTime: now + WINDOW_MS
+                remainingAttempts: limit,
+                resetTime: now + window
             };
         }
 
-        if (info.count >= MAX_ATTEMPTS) {
+        if (info.count >= limit) {
             return {
                 limited: true,
                 remainingAttempts: 0,
@@ -42,29 +55,32 @@ export const rateLimit = {
 
         return {
             limited: false,
-            remainingAttempts: MAX_ATTEMPTS - info.count,
+            remainingAttempts: limit - info.count,
             resetTime: info.reset
         };
     },
 
-    increment: (ip: string) => {
+    increment: (ip: string, options?: RateLimitOptions) => {
         const now = Date.now();
-        const info = rateLimits.get(ip);
+        const scopedKey = getScopedKey(ip, options);
+        const window = getWindow(options);
+        const info = rateLimits.get(scopedKey);
 
         if (!info || now > info.reset) {
-            rateLimits.set(ip, {
+            rateLimits.set(scopedKey, {
                 count: 1,
-                reset: now + WINDOW_MS
+                reset: now + window
             });
         } else {
-            rateLimits.set(ip, {
+            rateLimits.set(scopedKey, {
                 ...info,
                 count: info.count + 1
             });
         }
     },
 
-    clear: (ip: string) => {
-        rateLimits.delete(ip);
+    clear: (ip: string, options?: RateLimitOptions) => {
+        const scopedKey = getScopedKey(ip, options);
+        rateLimits.delete(scopedKey);
     }
 };
