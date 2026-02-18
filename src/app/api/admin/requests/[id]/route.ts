@@ -84,7 +84,7 @@ export async function DELETE(
         await AccessRequest.findByIdAndDelete(id);
 
         return NextResponse.json({ success: true });
-    } catch (error) {
+    } catch {
         return NextResponse.json({ error: "Delete failed" }, { status: 500 });
     }
 }

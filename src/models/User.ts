@@ -48,6 +48,10 @@ const UserSchema: Schema<IUser> = new Schema(
     { timestamps: true }
 );
 
+UserSchema.index({ createdAt: -1 });
+UserSchema.index({ role: 1, createdAt: -1 });
+UserSchema.index({ unlockedCourses: 1 });
+
 // Prevent recompilation in development
 const User: Model<IUser> =
     mongoose.models.User || mongoose.model<IUser>("User", UserSchema);

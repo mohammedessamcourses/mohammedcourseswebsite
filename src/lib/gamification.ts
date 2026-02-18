@@ -17,8 +17,7 @@ export interface XPAwardResult {
 
 export async function awardXP(
     userOrId: string | IUser,
-    amount: number,
-    reason?: string
+    amount: number
 ): Promise<XPAwardResult | null> {
     let user: IUser | null;
 

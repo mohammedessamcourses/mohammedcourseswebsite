@@ -20,11 +20,12 @@ export async function POST(req: Request) {
         });
 
         return NextResponse.json({ success: true, message: created });
-    } catch (error: any) {
+    } catch (error: unknown) {
+        const err = error as { message?: string; stack?: string; errors?: unknown };
         console.error("Message Create Error details:", {
-            message: error.message,
-            stack: error.stack,
-            errors: error.errors
+            message: err.message,
+            stack: err.stack,
+            errors: err.errors
         });
         return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
     }

@@ -45,8 +45,12 @@ export async function GET(req: Request) {
 
         // Check if full details are requested (for Users table vs Analytics/Overview)
         const details = searchParams.get("details");
+        const limitParam = Number(searchParams.get("limit") || (details === "true" ? "200" : "500"));
+        const offsetParam = Number(searchParams.get("offset") || "0");
+        const limit = Number.isFinite(limitParam) ? Math.min(Math.max(limitParam, 1), 2000) : 500;
+        const offset = Number.isFinite(offsetParam) ? Math.max(offsetParam, 0) : 0;
 
-        let queryBuilder = User.find(query).sort({ createdAt: -1 });
+        let queryBuilder = User.find(query).sort({ createdAt: -1 }).skip(offset).limit(limit);
 
         if (details === "true") {
             queryBuilder = queryBuilder
@@ -58,9 +62,12 @@ export async function GET(req: Request) {
             queryBuilder = queryBuilder.select("name email unlockedCourses completedCourses createdAt");
         }
 
-        const users = await queryBuilder.lean();
+        const [users, totalCount] = await Promise.all([
+            queryBuilder.lean(),
+            User.countDocuments(query),
+        ]);
 
-        return NextResponse.json({ users });
+        return NextResponse.json({ users, totalCount, limit, offset });
     } catch (e) {
         console.error(e);
         return NextResponse.json({ error: "Server Error" }, { status: 500 });
@@ -93,7 +100,7 @@ export async function DELETE(req: Request) {
         await User.findByIdAndDelete(id);
 
         return NextResponse.json({ success: true });
-    } catch (e) {
+    } catch {
         return NextResponse.json({ error: "Server Error" }, { status: 500 });
     }
 }

@@ -6,7 +6,6 @@ import { verifyToken } from "@/lib/auth";
 import { awardXP } from "@/lib/gamification";
 import { cookies } from "next/headers";
 import { revalidatePath } from "next/cache";
-import mongoose from "mongoose";
 
 export async function POST(req: Request) {
     try {
@@ -55,16 +54,16 @@ export async function POST(req: Request) {
         // Force strings and remove any nulls/undefineds
         // Safeguard: If the previous schema created objects { type: "..." }, extract the string.
         const rawAnswers = user.answeredQuestions || [];
-        const answeredQuestions = (Array.isArray(rawAnswers) ? rawAnswers : []).map(id => {
-            if (typeof id === 'object' && id !== null && 'type' in (id as any)) {
-                return String((id as any).type);
+        const answeredQuestions = (Array.isArray(rawAnswers) ? rawAnswers : []).map((id) => {
+            if (typeof id === "object" && id !== null && "type" in id) {
+                return String((id as { type?: unknown }).type);
             }
             return String(id);
         });
         const alreadyAnswered = answeredQuestions.includes(answerId);
 
         // Check if the section itself is marked completed
-        const isSectionAlreadyDone = (user.completedSections || []).some((id: any) => String(id) === sId);
+        const isSectionAlreadyDone = (user.completedSections || []).some((id) => String(id) === sId);
 
         console.log(`[QUIZ] User: ${user.email}, SID: ${sId}, QIdx: ${questionIndex}`);
         console.log(`[QUIZ] Flags - alreadyAnswered: ${alreadyAnswered}, isSectionDone: ${isSectionAlreadyDone}, isCorrect: ${isCorrect}`);
@@ -92,7 +91,19 @@ export async function POST(req: Request) {
             // Always try to update progress to ensure persistence
             try {
                 // Update individual answer tracking
-                const finalUpdate: any = {
+                type UserProgressUpdate = {
+                    $addToSet: {
+                        answeredQuestions: string;
+                        completedSections?: unknown;
+                    };
+                    $set: {
+                        xp: number;
+                        level: number;
+                        updatedAt: Date;
+                    };
+                };
+
+                const finalUpdate: UserProgressUpdate = {
                     $addToSet: { answeredQuestions: answerId },
                     $set: {
                         xp: user.xp,
@@ -104,7 +115,7 @@ export async function POST(req: Request) {
                 // Check if this was the last question for this section
                 const updatedAnswered = [...(user.answeredQuestions || []), answerId];
                 const sectionQuestionsCount = questions.length;
-                const answeredForThisSection = updatedAnswered.filter(id => id.startsWith(`${sId}-`));
+                const answeredForThisSection = updatedAnswered.filter((id) => String(id).startsWith(`${sId}-`));
 
                 // If all questions are answered, mark section as completed too
                 if (answeredForThisSection.length >= sectionQuestionsCount) {
@@ -120,7 +131,7 @@ export async function POST(req: Request) {
 
                 if (updatedUser) {
                     const count = updatedUser.answeredQuestions?.length || 0;
-                    const isSectionDone = updatedUser.completedSections?.some(id => String(id) === String(sectionId));
+                    const isSectionDone = updatedUser.completedSections?.some((id) => String(id) === String(sectionId));
                     console.log(`[QUIZ-SUCCESS] User: ${updatedUser.email}, Answers: ${count}, SectionDone: ${isSectionDone}`);
                 }
 

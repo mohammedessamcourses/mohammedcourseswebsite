@@ -32,7 +32,8 @@ export async function POST(req: Request) {
             return NextResponse.json({ error: "Course not found" }, { status: 404 });
         }
 
-        if ((course as any).certificateEnabled === false) {
+        const courseWithCertificate = course as { certificateEnabled?: boolean };
+        if (courseWithCertificate.certificateEnabled === false) {
             return NextResponse.json({ error: "Certificate is not available for this course" }, { status: 400 });
         }
 

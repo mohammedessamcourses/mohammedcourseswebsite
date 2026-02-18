@@ -35,6 +35,10 @@ const AccessRequestSchema: Schema<IAccessRequest> = new Schema(
     { timestamps: true }
 );
 
+AccessRequestSchema.index({ userId: 1, status: 1, createdAt: -1 });
+AccessRequestSchema.index({ courseId: 1, status: 1, createdAt: -1 });
+AccessRequestSchema.index({ status: 1, createdAt: -1 });
+
 const AccessRequest: Model<IAccessRequest> =
     mongoose.models.AccessRequest ||
     mongoose.model<IAccessRequest>("AccessRequest", AccessRequestSchema);

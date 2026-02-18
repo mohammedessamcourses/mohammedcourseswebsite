@@ -34,8 +34,11 @@ export async function POST(req: Request) {
             return NextResponse.json({ error: "User not found" }, { status: 404 });
         }
 
+        type ObjectIdLike = { toString(): string };
+        type CourseWithSections = { sections?: Array<{ _id: ObjectIdLike }> };
+
         // Check if already completed
-        if (user.completedSections.some((id: any) => String(id) === String(sectionId))) {
+        if (user.completedSections.some((id) => String(id) === String(sectionId))) {
             return NextResponse.json({ message: "Already completed" }, { status: 200 });
         }
 
@@ -50,19 +53,19 @@ export async function POST(req: Request) {
         }
 
         // Check if course is fully completed
-        const course = await Course.findById(courseId).populate("sections");
+        const course = (await Course.findById(courseId).populate("sections")) as CourseWithSections | null;
         let courseCompleted = false;
 
         if (course && course.sections) {
-            const allSectionIds = course.sections.map((s: any) => s._id.toString());
+            const allSectionIds = course.sections.map((section) => section._id.toString());
             // We just pushed the current section, so we check if all are now in the user's list
             // Re-fetch user or check against the modified array. The user object is modifying in memory.
-            const userCompletedIds = user.completedSections.map((id: any) => id.toString());
+            const userCompletedIds = user.completedSections.map((id) => id.toString());
 
             const allDone = allSectionIds.every((id: string) => userCompletedIds.includes(id));
 
             if (allDone) {
-                const alreadyCompleted = user.completedCourses.some((id: any) => String(id) === String(courseId));
+                const alreadyCompleted = user.completedCourses.some((id) => String(id) === String(courseId));
                 if (!alreadyCompleted) {
                     user.completedCourses.push(new mongoose.Types.ObjectId(courseId));
                     const courseXpResult = await awardXP(payload.userId, 500, `completed-course-${courseId}`); // Bonus XP for course completion

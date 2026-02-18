@@ -13,7 +13,7 @@ export async function GET() {
         await dbConnect();
         const courses = await Course.find({}).populate("sections", "_id").sort({ createdAt: -1 });
         return NextResponse.json({ courses });
-    } catch (error) {
+    } catch {
         return NextResponse.json(
             { error: "Internal Server Error" },
             { status: 500 }
@@ -43,7 +43,7 @@ export async function POST(req: Request) {
         revalidatePath("/dashboard", "page");
 
         return NextResponse.json({ course }, { status: 201 });
-    } catch (error) {
+    } catch {
         return NextResponse.json(
             { error: "Internal Server Error" },
             { status: 500 }

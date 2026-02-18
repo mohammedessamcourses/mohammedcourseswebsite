@@ -40,6 +40,10 @@ const CourseSchema: Schema<ICourse> = new Schema(
     { timestamps: true }
 );
 
+CourseSchema.index({ createdAt: -1 });
+CourseSchema.index({ isFree: 1, createdAt: -1 });
+CourseSchema.index({ isFeatured: 1, createdAt: -1 });
+
 const Course: Model<ICourse> =
     mongoose.models.Course || mongoose.model<ICourse>("Course", CourseSchema);
 

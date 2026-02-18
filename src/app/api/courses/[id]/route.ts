@@ -46,20 +46,15 @@ export async function GET(
             return NextResponse.json({ error: "Invalid ID" }, { status: 400 });
         }
 
-        const course = await Course.findById(id).populate("sections").lean();
+        const course = await Course.findById(id)
+            .select("title description thumbnail difficulty price discountPrice discountActive certificateEnabled isFree sections")
+            .lean();
 
         if (!course) {
             return NextResponse.json({ error: "Not Found" }, { status: 404 });
         }
 
-        const rawSections = (course as any).sections || [];
-        const normalizedSections = rawSections.filter((section: any) => !!section && !!section._id);
-
-        if (normalizedSections.length !== rawSections.length) {
-            await Course.findByIdAndUpdate(id, {
-                $set: { sections: normalizedSections.map((section: any) => section._id) }
-            });
-        }
+        const sectionIds = (course.sections || []).map((sectionId) => String(sectionId));
 
         if (adminView) {
             const cookieStore = await cookies();
@@ -76,8 +71,8 @@ export async function GET(
             return NextResponse.json({
                 course: {
                     ...course,
-                    sections: normalizedSections,
-                    certificateEnabled: (course as any).certificateEnabled === false ? false : true,
+                    sections: await Section.find({ _id: { $in: sectionIds } }).sort({ order: 1 }).lean(),
+                    certificateEnabled: course.certificateEnabled === false ? false : true,
                     isLocked: false,
                 },
             });
@@ -107,25 +102,16 @@ export async function GET(
             }
         }
 
-        // Process sections to hide content if locked
-        const sections = normalizedSections.map((section: any) => {
-            const isLocked = !hasFullAccess && !section.isFree;
+        const sectionsQuery = Section.find({ _id: { $in: sectionIds } }).sort({ order: 1 });
+        const rawSections = hasFullAccess || isAdmin
+            ? await sectionsQuery.lean()
+            : await sectionsQuery.select("_id title isFree order").lean();
 
-            if (isAdmin) return section; // Admins see everything
-
-            if (isLocked) {
-                return {
-                    _id: section._id,
-                    title: section.title,
-                    isFree: section.isFree,
-                    order: section.order,
-                    isLocked: true,
-                    // Omit content, videoUrl, quiz, pdfUrl
-                };
-            }
+        const sections = rawSections.map((section) => {
+            const isLocked = !hasFullAccess && !Boolean(section.isFree);
             return {
                 ...section,
-                isLocked: false,
+                isLocked,
             };
         });
 
@@ -133,7 +119,7 @@ export async function GET(
             course: {
                 ...course,
                 sections,
-                certificateEnabled: (course as any).certificateEnabled === false ? false : true,
+                certificateEnabled: course.certificateEnabled === false ? false : true,
                 isLocked: !hasFullAccess && !course.isFree, // Course level lock status for UI
             },
         });
@@ -178,9 +164,10 @@ export async function PUT(
             return NextResponse.json({ error: "Not Found" }, { status: 404 });
         }
 
-        const previousThumbnail = typeof (existingCourse as any).thumbnail === "string" ? (existingCourse as any).thumbnail : "";
+        const existingCourseTyped = existingCourse as { thumbnail?: string };
+        const previousThumbnail = typeof existingCourseTyped.thumbnail === "string" ? existingCourseTyped.thumbnail : "";
 
-        const updatePayload = { ...body } as Record<string, any>;
+        const updatePayload = { ...body } as Record<string, unknown>;
         if ("certificateEnabled" in updatePayload) {
             const rawValue = updatePayload.certificateEnabled;
             if (rawValue === "false" || rawValue === 0 || rawValue === "0") {
@@ -234,7 +221,8 @@ export async function PUT(
 
         if ("certificateEnabled" in updatePayload) {
             const expectedCertificateEnabled = updatePayload.certificateEnabled === false ? false : true;
-            const actualCertificateEnabled = (persistedCourse as any).certificateEnabled === false ? false : true;
+            const persistedCourseTyped = persistedCourse as { certificateEnabled?: boolean };
+            const actualCertificateEnabled = persistedCourseTyped.certificateEnabled === false ? false : true;
 
             if (expectedCertificateEnabled !== actualCertificateEnabled) {
                 return NextResponse.json(
@@ -252,7 +240,7 @@ export async function PUT(
             success: true,
             course: {
                 ...persistedCourse,
-                certificateEnabled: (persistedCourse as any).certificateEnabled === false ? false : true,
+                certificateEnabled: ((persistedCourse as { certificateEnabled?: boolean }).certificateEnabled === false ? false : true),
             }
         });
     } catch (error) {

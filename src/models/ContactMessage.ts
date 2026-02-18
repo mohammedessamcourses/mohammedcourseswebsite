@@ -19,11 +19,9 @@ const ContactMessageSchema: Schema<IContactMessage> = new Schema(
     { timestamps: true }
 );
 
-if (mongoose.models.ContactMessage) {
-    delete mongoose.models.ContactMessage;
-}
+ContactMessageSchema.index({ createdAt: -1 });
 
 const ContactMessage: Model<IContactMessage> =
-    mongoose.model<IContactMessage>("ContactMessage", ContactMessageSchema);
+    mongoose.models.ContactMessage || mongoose.model<IContactMessage>("ContactMessage", ContactMessageSchema);
 
 export default ContactMessage;
