@@ -1,9 +1,10 @@
 
 import { NextResponse } from "next/server";
 import dbConnect from "@/lib/db";
-import User from "@/models/User";
+import User, { type IUser } from "@/models/User";
 import { verifyToken } from "@/lib/auth";
 import { cookies } from "next/headers";
+import { type FilterQuery } from "mongoose";
 
 export async function GET(req: Request) {
     try {
@@ -32,7 +33,7 @@ export async function GET(req: Request) {
         const search = searchParams.get("search") || "";
 
         // Build query
-        let query: any = {};
+        let query: FilterQuery<IUser> = {};
         if (search) {
             query = {
                 $or: [
@@ -45,12 +46,16 @@ export async function GET(req: Request) {
         // Check if full details are requested (for Users table vs Analytics/Overview)
         const details = searchParams.get("details");
 
-        let queryBuilder = User.find(query).select("-password").sort({ createdAt: -1 });
+        let queryBuilder = User.find(query).sort({ createdAt: -1 });
 
         if (details === "true") {
             queryBuilder = queryBuilder
+                .select("name email role xp level streak unlockedCourses completedCourses createdAt")
                 .populate("unlockedCourses", "title price isFree")
                 .populate("completedCourses", "title");
+        } else {
+            // Lightweight payload for overview analytics and course dashboard
+            queryBuilder = queryBuilder.select("name email unlockedCourses completedCourses createdAt");
         }
 
         const users = await queryBuilder.lean();

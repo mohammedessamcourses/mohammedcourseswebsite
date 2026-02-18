@@ -3,8 +3,6 @@ import dbConnect from "@/lib/db";
 import AccessRequest from "@/models/AccessRequest";
 import { verifyToken } from "@/lib/auth";
 import { cookies } from "next/headers";
-import User from "@/models/User"; // Ensure populated
-import Course from "@/models/Course"; // Ensure populated
 
 export async function GET(req: Request) {
     try {
@@ -31,9 +29,11 @@ export async function GET(req: Request) {
         await dbConnect();
 
         const requests = await AccessRequest.find({})
+            .select("userId courseId status paymentDetails createdAt")
             .populate("userId", "name email")
             .populate("courseId", "title price discountPrice discountActive")
-            .sort({ createdAt: 1 });
+            .sort({ createdAt: 1 })
+            .lean();
 
         return NextResponse.json({ requests });
     } catch (error) {

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { AdminSidebar } from "@/components/admin/AdminSidebar";
 import { AdminStats } from "@/components/admin/AdminStats";
@@ -25,10 +25,26 @@ interface Course {
     _id: string;
     title: string;
     isFeatured: boolean;
-    sections: any[];
+    sections: unknown[];
     price: number;
     isFree: boolean;
     certificateEnabled?: boolean;
+}
+
+interface AdminUser {
+    _id: string;
+    name: string;
+    email: string;
+    createdAt: string;
+    unlockedCourses?: Array<{ _id: string; title?: string; price?: number; isFree?: boolean } | string>;
+    completedCourses?: Array<{ _id: string; title?: string } | string>;
+    role?: "student" | "admin";
+    xp?: number;
+    level?: number;
+    streak?: {
+        count: number;
+        lastActiveDate: string | Date;
+    };
 }
 
 interface ContactMessage {
@@ -46,8 +62,9 @@ export default function AdminDashboard() {
     const [courses, setCourses] = useState<Course[]>([]);
     const [messages, setMessages] = useState<ContactMessage[]>([]);
     const [usersCount, setUsersCount] = useState(0);
-    const [allUsers, setAllUsers] = useState<any[]>([]);
+    const [allUsers, setAllUsers] = useState<AdminUser[]>([]);
     const [loading, setLoading] = useState(true);
+    const [authError, setAuthError] = useState(false);
 
     // Course Management State
     const [showCreateCourse, setShowCreateCourse] = useState(false);
@@ -72,20 +89,38 @@ export default function AdminDashboard() {
         fetchAllData();
     }, []);
 
+    const fetchWithTimeout = async (url: string, options: RequestInit = {}, timeoutMs = 12000) => {
+        const controller = new AbortController();
+        const timer = setTimeout(() => controller.abort(), timeoutMs);
+
+        try {
+            return await fetch(url, {
+                ...options,
+                cache: "no-store",
+                signal: controller.signal,
+            });
+        } finally {
+            clearTimeout(timer);
+        }
+    };
+
     const fetchAllData = async () => {
         setLoading(true);
-        await Promise.all([fetchRequests(), fetchCourses(), fetchUsersCount(), fetchMessages()]);
+        setAuthError(false);
+        await Promise.allSettled([fetchRequests(), fetchCourses(), fetchUsersCount()]);
         setLoading(false);
     };
 
     const fetchUsersCount = async () => {
         try {
-            // Fetch basic list for analytics/count (no populated fields)
-            const res = await fetch("/api/admin/users");
+            // Fetch lightweight list for analytics/count
+            const res = await fetchWithTimeout("/api/admin/users");
             if (res.ok) {
                 const data = await res.json();
                 setUsersCount(data.users.length);
                 setAllUsers(data.users);
+            } else if (res.status === 401 || res.status === 403) {
+                setAuthError(true);
             }
         } catch (e) { console.error(e); }
     };
@@ -96,10 +131,12 @@ export default function AdminDashboard() {
             const fetchUserDetails = async () => {
                 try {
                     setLoading(true);
-                    const res = await fetch("/api/admin/users?details=true");
+                    const res = await fetchWithTimeout("/api/admin/users?details=true");
                     if (res.ok) {
                         const data = await res.json();
                         setAllUsers(data.users);
+                    } else if (res.status === 401 || res.status === 403) {
+                        setAuthError(true);
                     }
                 } catch (e) { console.error(e); } finally {
                     setLoading(false);
@@ -111,7 +148,7 @@ export default function AdminDashboard() {
 
     const fetchCourses = async () => {
         try {
-            const res = await fetch("/api/courses");
+            const res = await fetchWithTimeout("/api/courses");
             if (res.ok) {
                 const data = await res.json();
                 setCourses(data.courses);
@@ -123,14 +160,13 @@ export default function AdminDashboard() {
 
     const fetchRequests = async () => {
         try {
-            const res = await fetch("/api/admin/requests");
+            const res = await fetchWithTimeout("/api/admin/requests");
             if (res.ok) {
                 const data = await res.json();
                 setRequests(data.requests);
             } else {
                 if (res.status === 401 || res.status === 403) {
-                    setLoading(false);
-                    // Instead of redirecting, we stay here and show access denied
+                    setAuthError(true);
                     return;
                 }
             }
@@ -139,19 +175,34 @@ export default function AdminDashboard() {
         }
     };
 
-    const fetchMessages = async () => {
+    const fetchMessages = useCallback(async () => {
         try {
-            const res = await fetch("/api/admin/messages");
+            const res = await fetchWithTimeout("/api/admin/messages");
             if (res.ok) {
                 const data = await res.json();
                 setMessages(data.messages);
-            } else {
+            } else if (res.status === 401 || res.status === 403) {
+                setAuthError(true);
                 router.push("/login");
+            } else {
+                console.error("Failed to fetch admin messages", res.status);
             }
         } catch (e) {
             console.error(e);
         }
-    };
+    }, [router]);
+
+    useEffect(() => {
+        if (currentView === "messages" && messages.length === 0) {
+            const fetchMessageDetails = async () => {
+                setLoading(true);
+                await fetchMessages();
+                setLoading(false);
+            };
+
+            fetchMessageDetails();
+        }
+    }, [currentView, fetchMessages, messages.length]);
 
     const getApprovedPaidAmount = (req: Request) => {
         if (req.status !== "approved") return 0;
@@ -320,7 +371,7 @@ export default function AdminDashboard() {
 
 
     // If data load failed due to auth, show manual entry
-    if (!loading && requests.length === 0 && courses.length === 0 && usersCount === 0) {
+    if (!loading && authError) {
         return (
             <main className="min-h-screen bg-slate-950 flex flex-col items-center justify-center text-white p-4">
                 <div className="w-full max-w-md bg-slate-900 border border-slate-700 p-8 rounded-lg text-center">
@@ -377,8 +428,7 @@ export default function AdminDashboard() {
                             bestSellingCourse={(() => {
                                 const counts: Record<string, number> = {};
                                 requests.filter(r => r.status === "approved" && r.courseId).forEach(r => {
-                                    // Handle populated courseId
-                                    const title = (r.courseId as any).title || "Unknown";
+                                    const title = r.courseId?.title || "Unknown";
                                     counts[title] = (counts[title] || 0) + 1;
                                 });
                                 return Object.keys(counts).reduce((a, b) => counts[a] > counts[b] ? a : b, "") || "No Sales Yet";
@@ -425,7 +475,7 @@ export default function AdminDashboard() {
                                                 <span className="text-slate-500">PAYMENT FROM:</span> {req.paymentDetails.fullName} <span className="text-slate-600">|</span> {req.paymentDetails.phoneNumber}
                                             </div>
                                             {req.paymentDetails.transactionNotes && (
-                                                <div className="text-xs text-slate-500 mt-1 italic">"{req.paymentDetails.transactionNotes}"</div>
+                                                <div className="text-xs text-slate-500 mt-1 italic">&quot;{req.paymentDetails.transactionNotes}&quot;</div>
                                             )}
                                         </div>
                                         <div className="flex gap-2">
