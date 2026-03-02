@@ -19,14 +19,13 @@ type MongooseCache = {
 };
 
 declare global {
+    // eslint-disable-next-line no-var
     var mongoose: MongooseCache | undefined;
 }
 
-let cached = global.mongoose;
-
-if (!cached) {
-    cached = global.mongoose = { conn: null, promise: null };
-}
+// Ensure we always have a non-undefined cache object
+let cached: MongooseCache = global.mongoose || { conn: null, promise: null };
+global.mongoose = cached;
 
 async function dbConnect() {
     if (cached.conn && mongoose.connection.readyState === 1) {
