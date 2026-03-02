@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import dbConnect from "@/lib/db";
 import User from "@/models/User";
-import { hashPassword, signToken } from "@/lib/auth";
+import { hashPassword, signToken, verifyToken } from "@/lib/auth";
 import { cookies } from "next/headers";
 import { rateLimit } from "@/lib/rate-limit";
 
@@ -15,14 +15,22 @@ export async function POST(req: Request) {
     try {
         const ip = req.headers.get("x-forwarded-for")?.split(",")[0] || "127.0.0.1";
 
-        // Check rate limit for registration to prevent spam
-        const limitStatus = rateLimit.check(ip, REGISTER_RATE_LIMIT);
-        if (limitStatus.limited) {
-            const remainingMinutes = Math.ceil((limitStatus.resetTime - Date.now()) / 60000);
-            return NextResponse.json(
-                { error: "Too many registration attempts. Please try again in " + remainingMinutes + " minutes." },
-                { status: 429 }
-            );
+        const cookieStore = await cookies();
+        const existingToken = cookieStore.get("session_token")?.value;
+        const existingPayload = existingToken ? verifyToken(existingToken) : null;
+        const isAdminCaller = !!existingPayload && existingPayload.role === "admin";
+
+        // Check rate limit for self-service registration to prevent spam.
+        // Admin-initiated creations from the dashboard are not rate-limited.
+        if (!isAdminCaller) {
+            const limitStatus = rateLimit.check(ip, REGISTER_RATE_LIMIT);
+            if (limitStatus.limited) {
+                const remainingMinutes = Math.ceil((limitStatus.resetTime - Date.now()) / 60000);
+                return NextResponse.json(
+                    { error: "Too many registration attempts. Please try again in " + remainingMinutes + " minutes." },
+                    { status: 429 }
+                );
+            }
         }
 
         await dbConnect();
@@ -45,9 +53,13 @@ export async function POST(req: Request) {
 
         const hashedPassword = await hashPassword(password);
 
-        // Default to student unless specifically creating admin (should be protected in prod)
-        // For this prototype, we'll allow role passing but you might want to restrict it
-        const userRole = role === "admin" ? "admin" : "student";
+        // Role rules:
+        // - If called by an authenticated admin (from the admin panel), allow "admin" or "student".
+        // - For public/self registration, always force "student" regardless of payload.
+        const userRole =
+            isAdminCaller && role === "admin"
+                ? "admin"
+                : "student";
 
         const user = await User.create({
             name,
@@ -57,18 +69,20 @@ export async function POST(req: Request) {
             role: userRole,
         });
 
-        // Clear rate limit on success (optional, but good for genuine users)
-        rateLimit.clear(ip, REGISTER_RATE_LIMIT);
+        // Clear rate limit on success for self-service registrations
+        if (!isAdminCaller) {
+            rateLimit.clear(ip, REGISTER_RATE_LIMIT);
 
-        const token = signToken({ userId: user._id as unknown as string, role: user.role });
+            const token = signToken({ userId: user._id as unknown as string, role: user.role });
 
-        (await cookies()).set("session_token", token, {
-            httpOnly: true,
-            secure: false, // Allow HTTP (local network)
-            sameSite: "lax",
-            maxAge: 60 * 60 * 24 * 7, // 7 days
-            path: "/",
-        });
+            cookieStore.set("session_token", token, {
+                httpOnly: true,
+                secure: false, // Allow HTTP (local network)
+                sameSite: "lax",
+                maxAge: 60 * 60 * 24 * 7, // 7 days
+                path: "/",
+            });
+        }
 
         return NextResponse.json({
             user: {

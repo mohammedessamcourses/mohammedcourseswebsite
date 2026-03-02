@@ -4,7 +4,6 @@ import dbConnect from "@/lib/db";
 import User, { type IUser } from "@/models/User";
 import { verifyToken } from "@/lib/auth";
 import { cookies } from "next/headers";
-import { type FilterQuery } from "mongoose";
 
 export async function GET(req: Request) {
     try {
@@ -33,7 +32,7 @@ export async function GET(req: Request) {
         const search = searchParams.get("search") || "";
 
         // Build query
-        let query: FilterQuery<IUser> = {};
+        let query: Record<string, unknown> = {};
         if (search) {
             query = {
                 $or: [

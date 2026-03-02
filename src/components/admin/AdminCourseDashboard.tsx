@@ -4,18 +4,21 @@ import { useMemo, useState } from "react";
 import { GameCard } from "@/components/ui/GameCard";
 import { GameButton } from "@/components/ui/GameButton";
 import { Users, CheckCircle, DollarSign, UserPlus, Trash2 } from "lucide-react";
+import { getApprovedPaidAmount } from "@/lib/revenue";
 
 interface Course {
     _id: string;
     title: string;
     price: number;
     isFree: boolean;
+    discountPrice?: number;
+    discountActive?: boolean;
 }
 
 interface RequestRecord {
     _id: string;
     status: string;
-    courseId?: { _id: string; title: string; price: number } | string;
+    courseId?: { _id: string; title: string; price: number; discountPrice?: number; discountActive?: boolean } | string;
     paymentDetails?: { amount?: number };
     createdAt: string;
 }
@@ -69,17 +72,26 @@ export function AdminCourseDashboard({ courses, users, requests, onGrantAccess, 
     );
 
     const courseRequests = useMemo(
-        () => requests.filter(r => {
-            const courseId = typeof r.courseId === "string" ? r.courseId : r.courseId?._id;
-            return courseId === selectedCourseId;
-        }),
+        () =>
+            requests.filter(r => {
+                const courseId = typeof r.courseId === "string" ? r.courseId : r.courseId?._id;
+                return courseId === selectedCourseId;
+            }),
         [requests, selectedCourseId]
     );
 
-    const approvedRevenue = courseRequests.reduce((acc, req) => {
-        if (req.status !== "approved") return acc;
-        return acc + (req.paymentDetails?.amount || selectedCourse?.price || 0);
-    }, 0);
+    const approvedRevenue = useMemo(
+        () =>
+            courseRequests.reduce((acc, req) => {
+                const course =
+                    typeof req.courseId === "string"
+                        ? courses.find(c => c._id === req.courseId)
+                        : req.courseId || selectedCourse;
+
+                return acc + getApprovedPaidAmount(req, course);
+            }, 0),
+        [courseRequests, courses, selectedCourse]
+    );
 
     const pendingCount = courseRequests.filter(r => r.status === "pending").length;
 

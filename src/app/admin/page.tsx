@@ -10,6 +10,7 @@ import { AdminCertificates } from "@/components/admin/AdminCertificates";
 import { AdminCourseDashboard } from "@/components/admin/AdminCourseDashboard";
 import { GameButton } from "@/components/ui/GameButton";
 import { CheckCircle, XCircle, Trash } from "lucide-react";
+import { getApprovedPaidAmount } from "@/lib/revenue";
 
 // Interfaces
 interface Request {
@@ -19,6 +20,7 @@ interface Request {
     status: string;
     paymentDetails: { fullName: string; phoneNumber: string; transactionNotes: string; amount: number };
     createdAt: string;
+    updatedAt?: string;
 }
 
 interface Course {
@@ -203,20 +205,6 @@ export default function AdminDashboard() {
             fetchMessageDetails();
         }
     }, [currentView, fetchMessages, messages.length]);
-
-    const getApprovedPaidAmount = (req: Request) => {
-        if (req.status !== "approved") return 0;
-        if (!req.courseId) return 0;
-
-        // Check if discount was active for this course
-        if (req.courseId.discountActive && req.courseId.discountPrice !== undefined) {
-            return req.courseId.discountPrice;
-        }
-
-        // Fallback to payment details amount if available, otherwise original price
-        const amount = req.paymentDetails?.amount || req.courseId.price || 0;
-        return amount > 0 ? amount : 0;
-    };
 
     const handleAction = async (id: string, status: "approved" | "rejected") => {
         try {
@@ -413,16 +401,16 @@ export default function AdminDashboard() {
                             dailyRevenue={requests.reduce((acc, req) => {
                                 const amount = getApprovedPaidAmount(req);
                                 if (amount <= 0) return acc;
-                                const reqDate = new Date(req.createdAt).toDateString();
-                                const today = new Date().toDateString();
-                                return reqDate === today ? acc + amount : acc;
+                                const effectiveDate = new Date(req.updatedAt || req.createdAt);
+                                const today = new Date();
+                                return effectiveDate.toDateString() === today.toDateString() ? acc + amount : acc;
                             }, 0)}
                             monthlyRevenue={requests.reduce((acc, req) => {
                                 const amount = getApprovedPaidAmount(req);
                                 if (amount <= 0) return acc;
-                                const reqDate = new Date(req.createdAt);
+                                const effectiveDate = new Date(req.updatedAt || req.createdAt);
                                 const now = new Date();
-                                return (reqDate.getMonth() === now.getMonth() && reqDate.getFullYear() === now.getFullYear())
+                                return (effectiveDate.getMonth() === now.getMonth() && effectiveDate.getFullYear() === now.getFullYear())
                                     ? acc + amount : acc;
                             }, 0)}
                             bestSellingCourse={(() => {
