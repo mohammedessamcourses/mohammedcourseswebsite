@@ -49,7 +49,7 @@ export async function GET(req: Request) {
         const limit = Number.isFinite(limitParam) ? Math.min(Math.max(limitParam, 1), 2000) : 500;
         const offset = Number.isFinite(offsetParam) ? Math.max(offsetParam, 0) : 0;
 
-        let queryBuilder = User.find(query).sort({ createdAt: -1 }).skip(offset).limit(limit);
+        let queryBuilder: any = User.find(query).sort({ createdAt: -1 }).skip(offset).limit(limit);
 
         if (details === "true") {
             queryBuilder = queryBuilder
