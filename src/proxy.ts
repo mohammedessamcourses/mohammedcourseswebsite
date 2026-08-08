@@ -2,7 +2,20 @@ import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { jwtVerify } from "jose";
 
-const JWT_SECRET = process.env.JWT_SECRET || "jwt_4o3uJ5Kf7Xn2Qv9Pz1Lm6Rs8Tt0Yw3Bh";
+// See src/lib/auth.ts — never fall back to a literal secret here, and resolve it
+// lazily so the module can be loaded before the environment is populated.
+function getJwtSecret(): string {
+    const secret = process.env.JWT_SECRET;
+
+    if (!secret) {
+        throw new Error(
+            "JWT_SECRET is not set. Define it in your environment (.env.local locally, " +
+            "and in your hosting provider's environment variables in production)."
+        );
+    }
+
+    return secret;
+}
 
 // Basic in-memory rate limiting (for single-server/development)
 const rateLimit = new Map<string, { count: number; reset: number }>();
@@ -51,7 +64,7 @@ export async function proxy(request: NextRequest) {
         }
 
         try {
-            const secret = new TextEncoder().encode(JWT_SECRET);
+            const secret = new TextEncoder().encode(getJwtSecret());
             const { payload } = await jwtVerify(token, secret);
 
             if (payload.role !== "admin") {
@@ -67,7 +80,7 @@ export async function proxy(request: NextRequest) {
     if (pathname === "/login" || pathname === "/register") {
         if (token) {
             try {
-                const secret = new TextEncoder().encode(JWT_SECRET);
+                const secret = new TextEncoder().encode(getJwtSecret());
                 await jwtVerify(token, secret);
                 console.log("Proxy: Valid token found on auth page, redirecting to home.");
                 return NextResponse.redirect(new URL("/", request.url));
