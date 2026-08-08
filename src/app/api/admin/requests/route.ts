@@ -35,7 +35,7 @@ export async function GET(req: Request) {
         const offset = Number.isFinite(offsetParam) ? Math.max(offsetParam, 0) : 0;
 
         const requests = await AccessRequest.find({})
-            .select("userId courseId status paymentDetails createdAt")
+            .select("userId courseId status paymentDetails createdAt updatedAt")
             .populate("userId", "name email")
             .populate("courseId", "title price discountPrice discountActive")
             .sort({ createdAt: -1 })

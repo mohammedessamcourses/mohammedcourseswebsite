@@ -19,9 +19,11 @@ type MongooseCache = {
 };
 
 declare global {
+    // eslint-disable-next-line no-var
     var mongoose: MongooseCache | undefined;
 }
 
+// Ensure we always have a non-undefined cache object
 const cached: MongooseCache =
     global.mongoose ?? (global.mongoose = { conn: null, promise: null });
 

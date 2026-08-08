@@ -32,16 +32,25 @@ export function AdminAnalytics({ users, requests }: AdminAnalyticsProps) {
         });
     };
 
-    // Process Revenue Data (from Requests)
+    // Process Revenue Demand Data (from Requests)
     const processRevenue = () => {
         // Group by course title
         const revenueMap: Record<string, number> = {};
 
         requests.forEach(req => {
-            // Count potential revenue from all requests (Pending + Approved) to show demand
-            if (req.courseId && req.courseId.title) {
-                revenueMap[req.courseId.title] = (revenueMap[req.courseId.title] || 0) + (req.courseId.price || 0);
-            }
+            // Count potential revenue from all relevant requests (Pending + Approved) to show demand
+            if (!req.courseId || typeof req.courseId !== "object") return;
+            if (req.status !== "pending" && req.status !== "approved") return;
+
+            const title = req.courseId.title;
+            if (!title) return;
+
+            const price =
+                (req.courseId.discountActive && typeof req.courseId.discountPrice === "number" && req.courseId.discountPrice > 0
+                    ? req.courseId.discountPrice
+                    : req.courseId.price) || 0;
+
+            revenueMap[title] = (revenueMap[title] || 0) + price;
         });
 
         return Object.keys(revenueMap).map(course => ({
