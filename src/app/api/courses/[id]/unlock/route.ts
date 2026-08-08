@@ -3,6 +3,8 @@ import dbConnect from "@/lib/db";
 import AccessRequest from "@/models/AccessRequest";
 import { verifyToken } from "@/lib/auth";
 import { cookies } from "next/headers";
+import { logActivity } from "@/lib/activity";
+import User from "@/models/User";
 
 export async function POST(
     req: Request,
@@ -64,6 +66,23 @@ export async function POST(
                 transactionNotes,
                 amount: course.isFree ? 0 : course.price
             },
+        });
+
+        const requester = await User.findById(payload.userId).select("name email").lean();
+
+        await logActivity({
+            type: "access_requested",
+            description: `${fullName} requested access to ${course.title}`,
+            userId: payload.userId,
+            userName: (requester as { name?: string } | null)?.name || fullName,
+            userEmail: (requester as { email?: string } | null)?.email,
+            metadata: {
+                courseId,
+                courseTitle: course.title,
+                amount: course.isFree ? 0 : course.price,
+                phoneNumber,
+            },
+            req,
         });
 
         return NextResponse.json({ request }, { status: 201 });

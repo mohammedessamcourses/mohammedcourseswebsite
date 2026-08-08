@@ -4,6 +4,7 @@ import User from "@/models/User";
 import { comparePassword, signToken } from "@/lib/auth";
 import { cookies } from "next/headers";
 import { rateLimit } from "@/lib/rate-limit";
+import { logActivity } from "@/lib/activity";
 
 const LOGIN_RATE_LIMIT = {
     key: "login",
@@ -42,6 +43,14 @@ export async function POST(req: Request) {
             // Increment rate limit on failure
             rateLimit.increment(ip, LOGIN_RATE_LIMIT);
 
+            await logActivity({
+                type: "login_failed",
+                description: `Failed login for ${email} (no such account)`,
+                userEmail: email,
+                metadata: { reason: "unknown_account" },
+                ip,
+            });
+
             return NextResponse.json(
                 { error: "Invalid credentials" },
                 { status: 401 }
@@ -53,6 +62,16 @@ export async function POST(req: Request) {
         if (!isMatch) {
             // Increment rate limit on failure
             rateLimit.increment(ip, LOGIN_RATE_LIMIT);
+
+            await logActivity({
+                type: "login_failed",
+                description: `Failed login for ${user.email} (wrong password)`,
+                userId: user._id,
+                userName: user.name,
+                userEmail: user.email,
+                metadata: { reason: "bad_password" },
+                ip,
+            });
 
             return NextResponse.json(
                 { error: "Invalid credentials" },
@@ -71,6 +90,16 @@ export async function POST(req: Request) {
             sameSite: "lax",
             maxAge: 60 * 60 * 24 * 7, // 7 days
             path: "/",
+        });
+
+        await logActivity({
+            type: "login",
+            description: `${user.name} logged in`,
+            userId: user._id,
+            userName: user.name,
+            userEmail: user.email,
+            metadata: { role: user.role, level: user.level },
+            ip,
         });
 
         return NextResponse.json({

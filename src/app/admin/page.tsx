@@ -8,6 +8,7 @@ import { AdminUsers } from "@/components/admin/AdminUsers";
 import { AdminAnalytics } from "@/components/admin/AdminAnalytics";
 import { AdminCertificates } from "@/components/admin/AdminCertificates";
 import { AdminCourseDashboard } from "@/components/admin/AdminCourseDashboard";
+import { AdminActivity } from "@/components/admin/AdminActivity";
 import { GameButton } from "@/components/ui/GameButton";
 import { CheckCircle, XCircle, Trash } from "lucide-react";
 import { getApprovedPaidAmount } from "@/lib/revenue";
@@ -407,6 +408,8 @@ export default function AdminDashboard() {
                         onRevokeAccess={revokeCourseAccess}
                     />
                 )}
+
+                {currentView === "activity" && <AdminActivity />}
 
                 {currentView === "users" && <AdminUsers />}
 

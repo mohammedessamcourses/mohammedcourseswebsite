@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import dbConnect from "@/lib/db";
 import ContactMessage from "@/models/ContactMessage";
+import { logActivity } from "@/lib/activity";
 
 export async function POST(req: Request) {
     try {
@@ -17,6 +18,14 @@ export async function POST(req: Request) {
             phone: String(phone).trim(),
             message: String(message).trim(),
             source: source ? String(source).trim() : "tutorial",
+        });
+
+        await logActivity({
+            type: "contact_message",
+            description: `${created.name} sent a contact message from "${created.source}"`,
+            userName: created.name,
+            metadata: { source: created.source, phone: created.phone, messageId: String(created._id) },
+            req,
         });
 
         return NextResponse.json({ success: true, message: created });

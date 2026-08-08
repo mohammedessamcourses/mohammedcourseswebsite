@@ -7,6 +7,7 @@ export interface ICertificateRequest extends Document {
     phoneNumber: string;
     status: "pending" | "approved" | "rejected";
     createdAt: Date;
+    updatedAt: Date;
 }
 
 const CertificateRequestSchema: Schema<ICertificateRequest> = new Schema(

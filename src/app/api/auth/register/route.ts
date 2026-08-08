@@ -4,6 +4,7 @@ import User from "@/models/User";
 import { hashPassword, signToken, verifyToken } from "@/lib/auth";
 import { cookies } from "next/headers";
 import { rateLimit } from "@/lib/rate-limit";
+import { logActivity } from "@/lib/activity";
 
 const REGISTER_RATE_LIMIT = {
     key: "register",
@@ -83,6 +84,18 @@ export async function POST(req: Request) {
                 path: "/",
             });
         }
+
+        await logActivity({
+            type: "register",
+            description: isAdminCaller
+                ? `Admin created ${userRole} account for ${user.name}`
+                : `${user.name} registered`,
+            userId: user._id,
+            userName: user.name,
+            userEmail: user.email,
+            metadata: { role: user.role, createdByAdmin: isAdminCaller },
+            ip,
+        });
 
         return NextResponse.json({
             user: {

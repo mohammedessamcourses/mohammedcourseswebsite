@@ -6,6 +6,7 @@ import { verifyToken } from "@/lib/auth";
 import { awardXP } from "@/lib/gamification";
 import { cookies } from "next/headers";
 import { revalidatePath } from "next/cache";
+import { logActivity } from "@/lib/activity";
 
 export async function POST(req: Request) {
     try {
@@ -142,6 +143,27 @@ export async function POST(req: Request) {
                 console.error(`[QUIZ] SAVE ERROR:`, saveError);
                 return NextResponse.json({ error: "Failed to save progress" }, { status: 500 });
             }
+        }
+
+        // Only log genuinely new attempts; replays of an answered question would
+        // otherwise flood the feed without representing new activity.
+        if (!alreadyAnswered) {
+            await logActivity({
+                type: "quiz_answer",
+                description: `${user.name} answered Q${questionIndex + 1} of "${section.title}" ${isCorrect ? "correctly" : "incorrectly"}`,
+                userId: user._id,
+                userName: user.name,
+                userEmail: user.email,
+                metadata: {
+                    sectionId: sId,
+                    sectionTitle: section.title,
+                    courseId: String(section.courseId),
+                    questionIndex,
+                    isCorrect,
+                    xpAwarded,
+                },
+                req,
+            });
         }
 
         return NextResponse.json({

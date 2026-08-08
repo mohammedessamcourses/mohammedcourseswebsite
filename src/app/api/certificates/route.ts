@@ -4,6 +4,7 @@ import CertificateRequest from "@/models/CertificateRequest";
 import Course from "@/models/Course";
 import { cookies } from "next/headers";
 import { verifyToken } from "@/lib/auth";
+import { logActivity } from "@/lib/activity";
 
 export async function POST(req: Request) {
     try {
@@ -48,6 +49,22 @@ export async function POST(req: Request) {
             courseId,
             fullName,
             phoneNumber
+        });
+
+        const certCourse = await Course.findById(courseId).select("title").lean();
+
+        await logActivity({
+            type: "certificate_requested",
+            description: `${fullName || "A user"} requested a certificate for ${(certCourse as { title?: string } | null)?.title || "a course"}`,
+            userId,
+            userName: fullName,
+            metadata: {
+                courseId: String(courseId),
+                courseTitle: (certCourse as { title?: string } | null)?.title,
+                phoneNumber,
+                requestId: String(newRequest._id),
+            },
+            req,
         });
 
         return NextResponse.json({ request: newRequest }, { status: 201 });

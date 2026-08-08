@@ -7,6 +7,7 @@ import { verifyToken } from "@/lib/auth";
 import { cookies } from "next/headers";
 import mongoose from "mongoose";
 import { revalidatePath } from "next/cache";
+import { logActivity } from "@/lib/activity";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -177,6 +178,18 @@ export async function PUT(
             return NextResponse.json({ error: "Course saved but could not be reloaded" }, { status: 500 });
         }
 
+        await logActivity({
+            type: "course_updated",
+            description: `Admin updated the course "${(persistedCourse as { title?: string }).title || id}"`,
+            userId: payload.userId,
+            metadata: {
+                courseId: id,
+                courseTitle: (persistedCourse as { title?: string }).title,
+                fieldsChanged: Object.keys(updatePayload),
+            },
+            req,
+        });
+
         if ("certificateEnabled" in updatePayload) {
             const expectedCertificateEnabled = updatePayload.certificateEnabled === false ? false : true;
             const persistedCourseTyped = persistedCourse as { certificateEnabled?: boolean };
@@ -245,6 +258,14 @@ export async function DELETE(
         }
 
         await Section.deleteMany({ courseId: courseObjectId });
+
+        await logActivity({
+            type: "course_deleted",
+            description: `Admin deleted the course "${deletedCourse.title}"`,
+            userId: payload.userId,
+            metadata: { courseId: id, courseTitle: deletedCourse.title, sectionsRemoved: sectionIds.length },
+            req,
+        });
 
         await User.updateMany(
             {},

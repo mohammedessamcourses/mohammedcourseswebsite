@@ -8,6 +8,7 @@
     "start": "next start",
     "lint": "eslint",
     "seed": "tsx src/scripts/seed.ts",
+    "backfill:activity": "tsx src/scripts/backfill-activity.ts",
     "backup": "tsx src/scripts/backup.ts",
     "restore": "tsx src/scripts/restore.ts"
   },

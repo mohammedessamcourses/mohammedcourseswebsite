@@ -4,6 +4,8 @@ import User from "@/models/User";
 import { cookies } from "next/headers";
 import { verifyToken } from "@/lib/auth";
 import mongoose from "mongoose";
+import Course from "@/models/Course";
+import { logActivity } from "@/lib/activity";
 
 export async function POST(req: Request, { params }: { params: Promise<{ id: string }> }) {
     try {
@@ -37,6 +39,17 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
             return NextResponse.json({ error: "User not found" }, { status: 404 });
         }
 
+        const grantedCourse = await Course.findById(courseId).select("title").lean();
+        await logActivity({
+            type: "access_granted_manual",
+            description: `Admin granted ${user.name} access to ${(grantedCourse as { title?: string } | null)?.title || "a course"}`,
+            userId,
+            userName: user.name,
+            userEmail: user.email,
+            metadata: { courseId, courseTitle: (grantedCourse as { title?: string } | null)?.title, actedByAdminId: payload.userId },
+            req,
+        });
+
         return NextResponse.json({ success: true, user });
 
     } catch (e) {
@@ -67,6 +80,17 @@ export async function DELETE(req: Request, { params }: { params: Promise<{ id: s
             { $pull: { unlockedCourses: courseId } },
             { new: true }
         );
+
+        const revokedCourse = await Course.findById(courseId).select("title").lean();
+        await logActivity({
+            type: "access_revoked_manual",
+            description: `Admin revoked ${user?.name || "a user"}'s access to ${(revokedCourse as { title?: string } | null)?.title || "a course"}`,
+            userId,
+            userName: user?.name,
+            userEmail: user?.email,
+            metadata: { courseId, courseTitle: (revokedCourse as { title?: string } | null)?.title, actedByAdminId: payload.userId },
+            req,
+        });
 
         return NextResponse.json({ success: true, user });
 

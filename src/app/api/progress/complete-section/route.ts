@@ -6,6 +6,8 @@ import { verifyToken } from "@/lib/auth";
 import { awardXP } from "@/lib/gamification";
 import { cookies } from "next/headers";
 import mongoose from "mongoose";
+import { logActivity } from "@/lib/activity";
+import Section from "@/models/Section";
 
 export async function POST(req: Request) {
     try {
@@ -78,6 +80,35 @@ export async function POST(req: Request) {
         }
 
         await user.save();
+
+        const [sectionDoc, courseDoc] = await Promise.all([
+            Section.findById(sectionId).select("title").lean(),
+            Course.findById(courseId).select("title").lean(),
+        ]);
+        const sectionTitle = (sectionDoc as { title?: string } | null)?.title || "a section";
+        const courseTitle = (courseDoc as { title?: string } | null)?.title || "a course";
+
+        await logActivity({
+            type: "section_complete",
+            description: `${user.name} completed "${sectionTitle}" in ${courseTitle}`,
+            userId: user._id,
+            userName: user.name,
+            userEmail: user.email,
+            metadata: { sectionId, courseId, sectionTitle, courseTitle, xpAwarded: xpResult?.xpAwarded ?? 0 },
+            req,
+        });
+
+        if (courseCompleted) {
+            await logActivity({
+                type: "course_complete",
+                description: `${user.name} finished the course ${courseTitle}`,
+                userId: user._id,
+                userName: user.name,
+                userEmail: user.email,
+                metadata: { courseId, courseTitle },
+                req,
+            });
+        }
 
         return NextResponse.json({ success: true, xpResult, courseCompleted, xpReasons });
     } catch (error) {

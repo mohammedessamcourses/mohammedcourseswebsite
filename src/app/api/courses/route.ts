@@ -4,6 +4,7 @@ import Course from "@/models/Course";
 import { verifyToken } from "@/lib/auth";
 import { cookies } from "next/headers";
 import { revalidatePath } from "next/cache";
+import { logActivity } from "@/lib/activity";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -41,6 +42,14 @@ export async function POST(req: Request) {
 
         revalidatePath("/courses", "page");
         revalidatePath("/dashboard", "page");
+
+        await logActivity({
+            type: "course_created",
+            description: `Admin created the course "${course.title}"`,
+            userId: payload.userId,
+            metadata: { courseId: String(course._id), courseTitle: course.title, price: course.price },
+            req,
+        });
 
         return NextResponse.json({ course }, { status: 201 });
     } catch {
