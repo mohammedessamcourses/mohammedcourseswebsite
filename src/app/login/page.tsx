@@ -1,14 +1,12 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Eye, EyeOff } from "lucide-react";
 import { GameButton } from "@/components/ui/GameButton";
 import { GameInput } from "@/components/ui/GameInput";
 
 export default function LoginPage() {
-    const router = useRouter();
     const [formData, setFormData] = useState({ email: "", password: "" });
     const [showPassword, setShowPassword] = useState(false);
     const [error, setError] = useState("");
@@ -29,11 +27,15 @@ export default function LoginPage() {
             const data = await res.json();
 
             if (res.ok) {
-                if (data.user.role === "admin") {
-                    router.push("/admin");
-                } else {
-                    router.push("/");
-                }
+                // Full-document navigation (not router.push) so the new session
+                // cookie is picked up and the App Router client cache / any
+                // logged-out prefetch of protected routes (e.g. /dashboard) is
+                // discarded. router.push would reuse the stale logged-out cache,
+                // causing the navbar to still show "Login" and "My Courses" to
+                // bounce back to /login. Mirrors the logout handler.
+                const destination = data.user.role === "admin" ? "/admin" : "/";
+                window.location.href = destination;
+                return;
             } else {
                 setError(data.error || "Login failed");
             }

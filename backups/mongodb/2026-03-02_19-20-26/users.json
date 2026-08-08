@@ -1,0 +1,893 @@
+[
+  {
+    "_id": "69750f5e7db5a2e2be4bae59",
+    "name": "mohammed essam",
+    "email": "mohammedessameldincs@gmail.com",
+    "phone": "01022138836",
+    "password": "$2b$10$Jv4xhK22U2VHtC.DSv7dqedj98vPVImKUA0us3QRFNRbsQbtBNE5y",
+    "role": "admin",
+    "xp": 100109,
+    "level": 79,
+    "streak": {
+      "count": 1,
+      "lastActiveDate": "2026-03-02T17:01:07.686Z"
+    },
+    "completedSections": [
+      "6974bf9c872a8e595e87d02c",
+      "6974c543872a8e595e87d06d"
+    ],
+    "completedCourses": [],
+    "unlockedCourses": [],
+    "answeredQuestions": [
+      "6974c6d5872a8e595e87d0b3-0"
+    ],
+    "createdAt": "2026-01-24T18:28:46.136Z",
+    "updatedAt": "2026-03-02T17:01:07.687Z",
+    "__v": 2
+  },
+  {
+    "_id": "69751ba27bf0f99f2b96e2e3",
+    "name": "israa mohammed",
+    "email": "esraamohamedmoh@gmail.com",
+    "phone": "01114800519",
+    "password": "$2b$10$oUXl5mtSrsZrSr2UmtwAaOL44GDFzfUb1rHIoaTGk/xZx2wAMFvrK",
+    "role": "student",
+    "xp": 3330,
+    "level": 8,
+    "streak": {
+      "count": 2,
+      "lastActiveDate": "2026-01-28T16:32:51.182Z"
+    },
+    "completedSections": [
+      "6974bf9c872a8e595e87d02c",
+      "6974c543872a8e595e87d06d",
+      "6974c6d5872a8e595e87d0b3",
+      "6974cfdb872a8e595e87d451",
+      "6974f984872a8e595e87db7e",
+      "6974d88d872a8e595e87d5a4",
+      "6974dbd0872a8e595e87d5c1",
+      "6974e3e6872a8e595e87d7e4",
+      "6974dd16872a8e595e87d5e4",
+      "6974e85e872a8e595e87d8b6",
+      "6974ebc8872a8e595e87da12",
+      "6974e75c872a8e595e87d8af",
+      "6974e8eb872a8e595e87d8c9",
+      "6974ecbf872a8e595e87da28",
+      "6974f0b2872a8e595e87dae1",
+      "6974ec61872a8e595e87da21",
+      "6974f640872a8e595e87db42",
+      "6974ed36872a8e595e87da30",
+      "6974f129872a8e595e87daf0",
+      "6974f43e872a8e595e87daf7",
+      "6974f87a872a8e595e87db6c",
+      "6974f9e8872a8e595e87db9b",
+      "6974f9f3872a8e595e87dba2",
+      "6974fd3f872a8e595e87dcc2",
+      "697500bf872a8e595e87de49",
+      "6974ff47872a8e595e87dcc9",
+      "69750105872a8e595e87de51",
+      "697501cf872a8e595e87de58",
+      "6975029f872a8e595e87de71",
+      "697503ac872a8e595e87deac",
+      "697501e0872a8e595e87de5f"
+    ],
+    "completedCourses": [
+      "6974bf56872a8e595e87d01a"
+    ],
+    "unlockedCourses": [
+      "6974bf56872a8e595e87d01a"
+    ],
+    "answeredQuestions": [
+      "6974c6d5872a8e595e87d0b3-0",
+      "6974c6d5872a8e595e87d0b3-2",
+      "6974c6d5872a8e595e87d0b3-3",
+      "6974c6d5872a8e595e87d0b3-1",
+      "6974c6d5872a8e595e87d0b3-5",
+      "6974c6d5872a8e595e87d0b3-6",
+      "6974c6d5872a8e595e87d0b3-4",
+      "6974c6d5872a8e595e87d0b3-7",
+      "6974c6d5872a8e595e87d0b3-8",
+      "6974c6d5872a8e595e87d0b3-11",
+      "6974c6d5872a8e595e87d0b3-10",
+      "6974c6d5872a8e595e87d0b3-12",
+      "6974c6d5872a8e595e87d0b3-13",
+      "6974c6d5872a8e595e87d0b3-14",
+      "6974c6d5872a8e595e87d0b3-15",
+      "6974c6d5872a8e595e87d0b3-16",
+      "6974c6d5872a8e595e87d0b3-17",
+      "6974c6d5872a8e595e87d0b3-18",
+      "6974c6d5872a8e595e87d0b3-19",
+      "6974dd16872a8e595e87d5e4-0",
+      "6974dd16872a8e595e87d5e4-1",
+      "6974dd16872a8e595e87d5e4-2",
+      "6974dd16872a8e595e87d5e4-5",
+      "6974dd16872a8e595e87d5e4-3",
+      "6974dd16872a8e595e87d5e4-4",
+      "6974dd16872a8e595e87d5e4-6",
+      "6974dd16872a8e595e87d5e4-7",
+      "6974dd16872a8e595e87d5e4-8",
+      "6974dd16872a8e595e87d5e4-9",
+      "6974dd16872a8e595e87d5e4-10",
+      "6974dd16872a8e595e87d5e4-11",
+      "6974dd16872a8e595e87d5e4-13",
+      "6974e8eb872a8e595e87d8c9-0",
+      "6974e8eb872a8e595e87d8c9-1",
+      "6974e8eb872a8e595e87d8c9-2",
+      "6974e8eb872a8e595e87d8c9-3",
+      "6974e8eb872a8e595e87d8c9-4",
+      "6974e8eb872a8e595e87d8c9-5",
+      "6974e8eb872a8e595e87d8c9-6",
+      "6974e8eb872a8e595e87d8c9-7",
+      "6974e8eb872a8e595e87d8c9-8",
+      "6974e8eb872a8e595e87d8c9-9",
+      "6974ed36872a8e595e87da30-0",
+      "6974ed36872a8e595e87da30-1",
+      "6974ed36872a8e595e87da30-4",
+      "6974f43e872a8e595e87daf7-0",
+      "6974f43e872a8e595e87daf7-1",
+      "6974f43e872a8e595e87daf7-2",
+      "6974f43e872a8e595e87daf7-3",
+      "6974f43e872a8e595e87daf7-4",
+      "6974f43e872a8e595e87daf7-6",
+      "6974f43e872a8e595e87daf7-7",
+      "6974f43e872a8e595e87daf7-8",
+      "6974f43e872a8e595e87daf7-9",
+      "6974f43e872a8e595e87daf7-10",
+      "6974f43e872a8e595e87daf7-11",
+      "6974f43e872a8e595e87daf7-12",
+      "6974f43e872a8e595e87daf7-13",
+      "6974f9f3872a8e595e87dba2-0",
+      "6974f9f3872a8e595e87dba2-2",
+      "6974f9f3872a8e595e87dba2-3",
+      "6974f9f3872a8e595e87dba2-4",
+      "6974f9f3872a8e595e87dba2-5",
+      "6974f9f3872a8e595e87dba2-6",
+      "6974f9f3872a8e595e87dba2-7",
+      "6974f9f3872a8e595e87dba2-8",
+      "6974f9f3872a8e595e87dba2-9",
+      "6974f9f3872a8e595e87dba2-10",
+      "6974f9f3872a8e595e87dba2-11",
+      "6974f9f3872a8e595e87dba2-12",
+      "6974f9f3872a8e595e87dba2-13",
+      "6974f9f3872a8e595e87dba2-14",
+      "6974f9f3872a8e595e87dba2-15",
+      "6974f9f3872a8e595e87dba2-16",
+      "6974f9f3872a8e595e87dba2-17",
+      "6974f9f3872a8e595e87dba2-18",
+      "6974f9f3872a8e595e87dba2-19",
+      "6974f9f3872a8e595e87dba2-20",
+      "6974f9f3872a8e595e87dba2-21",
+      "6974f9f3872a8e595e87dba2-22",
+      "6974f9f3872a8e595e87dba2-23",
+      "6974f9f3872a8e595e87dba2-24",
+      "6974ff47872a8e595e87dcc9-0",
+      "6974ff47872a8e595e87dcc9-1",
+      "6974ff47872a8e595e87dcc9-2",
+      "6974ff47872a8e595e87dcc9-3",
+      "6974ff47872a8e595e87dcc9-4",
+      "6974ff47872a8e595e87dcc9-5",
+      "6974ff47872a8e595e87dcc9-6",
+      "6974ff47872a8e595e87dcc9-7",
+      "6974ff47872a8e595e87dcc9-8",
+      "6974ff47872a8e595e87dcc9-9",
+      "6974ff47872a8e595e87dcc9-10",
+      "6974ff47872a8e595e87dcc9-13",
+      "6974ff47872a8e595e87dcc9-14",
+      "6974ff47872a8e595e87dcc9-17",
+      "6974ff47872a8e595e87dcc9-16",
+      "6974ff47872a8e595e87dcc9-15",
+      "6975029f872a8e595e87de71-0",
+      "6975029f872a8e595e87de71-1",
+      "6975029f872a8e595e87de71-2",
+      "6975029f872a8e595e87de71-3",
+      "6975029f872a8e595e87de71-5",
+      "6975029f872a8e595e87de71-6",
+      "6975029f872a8e595e87de71-7",
+      "6975029f872a8e595e87de71-8",
+      "6975029f872a8e595e87de71-9",
+      "6975029f872a8e595e87de71-12",
+      "6975029f872a8e595e87de71-13",
+      "6975029f872a8e595e87de71-14"
+    ],
+    "createdAt": "2026-01-24T19:21:06.616Z",
+    "updatedAt": "2026-03-01T14:06:34.421Z",
+    "__v": 30
+  },
+  {
+    "_id": "69751d30a9d13bc21d23c2eb",
+    "name": "Santawy",
+    "email": "faresalsantawy@gmail.com",
+    "phone": "01102111092",
+    "password": "$2b$10$awBJWbK2dIoFDTmyaBRu1eVQg.aunhBW/q8H6/c7LMEMLq9XsuODK",
+    "role": "student",
+    "xp": 450,
+    "level": 2,
+    "streak": {
+      "count": 4,
+      "lastActiveDate": "2026-01-27T00:18:02.830Z"
+    },
+    "completedSections": [
+      "6974bf9c872a8e595e87d02c",
+      "6974c543872a8e595e87d06d",
+      "6974c6d5872a8e595e87d0b3",
+      "6974cfdb872a8e595e87d451"
+    ],
+    "completedCourses": [],
+    "unlockedCourses": [
+      "6974bf56872a8e595e87d01a"
+    ],
+    "answeredQuestions": [
+      "6974c6d5872a8e595e87d0b3-0",
+      "6974c6d5872a8e595e87d0b3-1",
+      "6974c6d5872a8e595e87d0b3-2",
+      "6974c6d5872a8e595e87d0b3-3",
+      "6974c6d5872a8e595e87d0b3-5",
+      "6974c6d5872a8e595e87d0b3-8",
+      "6974c6d5872a8e595e87d0b3-10",
+      "6974c6d5872a8e595e87d0b3-11",
+      "6974c6d5872a8e595e87d0b3-12",
+      "6974c6d5872a8e595e87d0b3-13",
+      "6974c6d5872a8e595e87d0b3-14",
+      "6974c6d5872a8e595e87d0b3-15",
+      "6974c6d5872a8e595e87d0b3-16",
+      "6974c6d5872a8e595e87d0b3-17",
+      "6974c6d5872a8e595e87d0b3-18",
+      "6974c6d5872a8e595e87d0b3-19",
+      "6974cfdb872a8e595e87d451-0",
+      "6974cfdb872a8e595e87d451-1",
+      "6974cfdb872a8e595e87d451-2",
+      "6974cfdb872a8e595e87d451-4",
+      "6974cfdb872a8e595e87d451-5",
+      "6974cfdb872a8e595e87d451-6",
+      "6974cfdb872a8e595e87d451-7",
+      "6974cfdb872a8e595e87d451-8",
+      "6974cfdb872a8e595e87d451-9"
+    ],
+    "createdAt": "2026-01-24T19:27:44.824Z",
+    "updatedAt": "2026-01-27T00:18:02.835Z",
+    "__v": 4
+  },
+  {
+    "_id": "69751f2b7a29cc2a06527a86",
+    "name": "Bishoy26",
+    "email": "bishoyadel500@gmail.com",
+    "phone": "01220557961",
+    "password": "$2b$10$i9aG7BPFDHmpGkWC2gMtle2jLWUZhImM1t4GNslSB7mBJuA6BO.n6",
+    "role": "student",
+    "xp": 610,
+    "level": 2,
+    "streak": {
+      "count": 2,
+      "lastActiveDate": "2026-02-27T18:48:25.659Z"
+    },
+    "completedSections": [
+      "6974bf9c872a8e595e87d02c",
+      "6974c543872a8e595e87d06d",
+      "6974c543872a8e595e87d06d",
+      "6974c6d5872a8e595e87d0b3",
+      "6974cfdb872a8e595e87d451",
+      "6974f984872a8e595e87db7e",
+      "6974d88d872a8e595e87d5a4"
+    ],
+    "completedCourses": [],
+    "unlockedCourses": [
+      "6974bf56872a8e595e87d01a"
+    ],
+    "answeredQuestions": [
+      "6974c6d5872a8e595e87d0b3-0",
+      "6974c6d5872a8e595e87d0b3-1",
+      "6974c6d5872a8e595e87d0b3-2",
+      "6974c6d5872a8e595e87d0b3-3",
+      "6974c6d5872a8e595e87d0b3-4",
+      "6974c6d5872a8e595e87d0b3-5",
+      "6974c6d5872a8e595e87d0b3-6",
+      "6974c6d5872a8e595e87d0b3-7",
+      "6974c6d5872a8e595e87d0b3-8",
+      "6974c6d5872a8e595e87d0b3-9",
+      "6974c6d5872a8e595e87d0b3-10",
+      "6974c6d5872a8e595e87d0b3-11",
+      "6974c6d5872a8e595e87d0b3-12",
+      "6974c6d5872a8e595e87d0b3-13",
+      "6974c6d5872a8e595e87d0b3-14",
+      "6974c6d5872a8e595e87d0b3-15",
+      "6974c6d5872a8e595e87d0b3-16",
+      "6974c6d5872a8e595e87d0b3-17",
+      "6974c6d5872a8e595e87d0b3-18",
+      "6974c6d5872a8e595e87d0b3-19",
+      "6974cfdb872a8e595e87d451-1",
+      "6974cfdb872a8e595e87d451-2",
+      "6974cfdb872a8e595e87d451-3",
+      "6974cfdb872a8e595e87d451-4",
+      "6974cfdb872a8e595e87d451-5",
+      "6974cfdb872a8e595e87d451-7",
+      "6974cfdb872a8e595e87d451-8",
+      "6974cfdb872a8e595e87d451-9"
+    ],
+    "createdAt": "2026-01-24T19:36:11.930Z",
+    "updatedAt": "2026-02-28T20:18:39.890Z",
+    "__v": 6
+  },
+  {
+    "_id": "697540c03ce34a1ef528add9",
+    "name": "Lashin_2007",
+    "email": "lashinkhaled1@gmail.com",
+    "phone": "01004987084",
+    "password": "$2b$10$vb4AWEd3xnIccCtSu4J7R.spO65USTvPMtFO5ZJhkY27h1bRcIlZ2",
+    "role": "student",
+    "xp": 50,
+    "level": 1,
+    "streak": {
+      "count": 1,
+      "lastActiveDate": "2026-01-24T22:04:50.214Z"
+    },
+    "completedSections": [
+      "6974bf9c872a8e595e87d02c"
+    ],
+    "completedCourses": [],
+    "unlockedCourses": [
+      "6974bf56872a8e595e87d01a"
+    ],
+    "answeredQuestions": [],
+    "createdAt": "2026-01-24T21:59:28.862Z",
+    "updatedAt": "2026-01-24T22:21:12.296Z",
+    "__v": 1
+  },
+  {
+    "_id": "69755357a185e410f23bb617",
+    "name": "Omar Khairy",
+    "email": "omarhesham1422007@gmail.com",
+    "phone": "01205550202",
+    "password": "$2b$10$1UCZTfLOqJJSmMxz6hfFhuWiD.o0OWtzD.ULPZ5qikmco6PI8J64K",
+    "role": "student",
+    "xp": 0,
+    "level": 1,
+    "streak": {
+      "count": 0,
+      "lastActiveDate": "2026-01-24T23:18:47.980Z"
+    },
+    "completedSections": [],
+    "completedCourses": [],
+    "unlockedCourses": [],
+    "answeredQuestions": [],
+    "createdAt": "2026-01-24T23:18:47.983Z",
+    "updatedAt": "2026-01-24T23:18:47.983Z",
+    "__v": 0
+  },
+  {
+    "_id": "69755426ba49febc992719e1",
+    "name": "Noureldin",
+    "email": "noureldinmemo@gmail.com",
+    "phone": "01551955871",
+    "password": "$2b$10$dV8J66lZlYsVww9CgihEf.ai.ikQbnHmuT/b/Ech.ufqiyF7fNJx6",
+    "role": "student",
+    "xp": 50,
+    "level": 1,
+    "streak": {
+      "count": 0,
+      "lastActiveDate": "2026-01-24T23:22:14.128Z"
+    },
+    "completedSections": [
+      "6974bf9c872a8e595e87d02c"
+    ],
+    "completedCourses": [],
+    "unlockedCourses": [],
+    "answeredQuestions": [],
+    "createdAt": "2026-01-24T23:22:14.134Z",
+    "updatedAt": "2026-01-24T23:23:01.517Z",
+    "__v": 1
+  },
+  {
+    "_id": "69755587ba49febc99271a6e",
+    "name": "Zoome",
+    "email": "zoomamedhat7@gmail.com",
+    "phone": "01288833842",
+    "password": "$2b$10$mApzt033RAYKvecclI73f.Gt6VbwB7j1YN14Vnz2H89cp1aJByDiW",
+    "role": "student",
+    "xp": 0,
+    "level": 1,
+    "streak": {
+      "count": 0,
+      "lastActiveDate": "2026-01-24T23:28:07.504Z"
+    },
+    "completedSections": [],
+    "completedCourses": [],
+    "unlockedCourses": [],
+    "answeredQuestions": [],
+    "createdAt": "2026-01-24T23:28:07.504Z",
+    "updatedAt": "2026-01-24T23:28:07.504Z",
+    "__v": 0
+  },
+  {
+    "_id": "6975685ed3c5cf03fa25c49e",
+    "name": "Mohamed Elsayed ",
+    "email": "mido.elsayed2006@gmail.com",
+    "phone": "01019156507",
+    "password": "$2b$10$6TO0YdTH5N6kGEtIGdhelOTNqh4S0vFfMIJOdTvhxe6FZCM0Xb1li",
+    "role": "student",
+    "xp": 50,
+    "level": 1,
+    "streak": {
+      "count": 0,
+      "lastActiveDate": "2026-01-25T00:48:30.631Z"
+    },
+    "completedSections": [
+      "6974bf9c872a8e595e87d02c"
+    ],
+    "completedCourses": [],
+    "unlockedCourses": [],
+    "answeredQuestions": [],
+    "createdAt": "2026-01-25T00:48:30.634Z",
+    "updatedAt": "2026-01-25T00:50:54.514Z",
+    "__v": 1
+  },
+  {
+    "_id": "6975ff679df064adcfbdd594",
+    "name": "Menna Emad",
+    "email": "mennarahma2007@gmail.com",
+    "phone": "01094655448",
+    "password": "$2b$10$zo1DaiGLcOnVMw/tYADvf.ni49aYTfHg730Q.WXVXzw9a7.Qg4cxi",
+    "role": "student",
+    "xp": 150,
+    "level": 1,
+    "streak": {
+      "count": 1,
+      "lastActiveDate": "2026-01-25T11:54:02.054Z"
+    },
+    "completedSections": [
+      "6974bf9c872a8e595e87d02c",
+      "6974c543872a8e595e87d06d"
+    ],
+    "completedCourses": [],
+    "unlockedCourses": [
+      "6974bf56872a8e595e87d01a"
+    ],
+    "answeredQuestions": [],
+    "createdAt": "2026-01-25T11:32:55.129Z",
+    "updatedAt": "2026-01-25T11:55:15.403Z",
+    "__v": 2
+  },
+  {
+    "_id": "6976019cfe8988169b87d025",
+    "name": "moe",
+    "email": "admin@xyz",
+    "phone": "123456789",
+    "password": "$2b$10$CXlXI1/3Qxn7gmyvsj7WM.CkhnPN4.fT9..pO0jfNPafDXvSqPOp6",
+    "role": "admin",
+    "xp": 0,
+    "level": 1,
+    "streak": {
+      "count": 1,
+      "lastActiveDate": "2026-01-25T11:42:26.469Z"
+    },
+    "completedSections": [],
+    "completedCourses": [],
+    "unlockedCourses": [],
+    "answeredQuestions": [],
+    "createdAt": "2026-01-25T11:42:20.229Z",
+    "updatedAt": "2026-01-25T11:42:26.474Z",
+    "__v": 0
+  },
+  {
+    "_id": "697b59505449f14130a220c8",
+    "name": "ahmed mohammed",
+    "email": "ahmedmohammed523@gmail.com",
+    "phone": "01056348965",
+    "password": "$2b$10$MiJktsLsD4lH1b314iC4M.H7yWzldNlXgvkCdbE3pq3PE6eOY6PIG",
+    "role": "student",
+    "xp": 1550,
+    "level": 4,
+    "streak": {
+      "count": 4,
+      "lastActiveDate": "2026-01-29T12:58:51.578Z"
+    },
+    "completedSections": [],
+    "completedCourses": [],
+    "unlockedCourses": [
+      "6974bf56872a8e595e87d01a"
+    ],
+    "answeredQuestions": [],
+    "createdAt": "2026-01-29T12:57:52.064Z",
+    "updatedAt": "2026-01-29T16:04:10.398Z",
+    "__v": 0
+  },
+  {
+    "_id": "6982df1519422ef16825a655",
+    "name": "Ahmed Fawzy",
+    "email": "ahmedgh7288@gmail.com",
+    "phone": "01063858154",
+    "password": "$2b$10$29TVH536w2U30zT4u7VkUuC0xBkBa7HCJwhpXkEJA8kU5CdRzFBe2",
+    "role": "student",
+    "xp": 340,
+    "level": 1,
+    "streak": {
+      "count": 2,
+      "lastActiveDate": "2026-02-22T12:27:42.105Z"
+    },
+    "completedSections": [
+      "6974bf9c872a8e595e87d02c",
+      "6974bf9c872a8e595e87d02c",
+      "6974cfdb872a8e595e87d451",
+      "6974c6d5872a8e595e87d0b3"
+    ],
+    "completedCourses": [],
+    "unlockedCourses": [
+      "6974bf56872a8e595e87d01a"
+    ],
+    "answeredQuestions": [
+      "6974c6d5872a8e595e87d0b3-0",
+      "6974c6d5872a8e595e87d0b3-1",
+      "6974c6d5872a8e595e87d0b3-2",
+      "6974c6d5872a8e595e87d0b3-3",
+      "6974c6d5872a8e595e87d0b3-5",
+      "6974c6d5872a8e595e87d0b3-7",
+      "6974c6d5872a8e595e87d0b3-8",
+      "6974c6d5872a8e595e87d0b3-10",
+      "6974c6d5872a8e595e87d0b3-11",
+      "6974c6d5872a8e595e87d0b3-12",
+      "6974c6d5872a8e595e87d0b3-13",
+      "6974c6d5872a8e595e87d0b3-17",
+      "6974c6d5872a8e595e87d0b3-18",
+      "6974c6d5872a8e595e87d0b3-19"
+    ],
+    "createdAt": "2026-02-04T05:54:29.977Z",
+    "updatedAt": "2026-02-25T23:14:55.409Z",
+    "__v": 4
+  },
+  {
+    "_id": "69936f822171949344b3ae23",
+    "name": "Anshuga",
+    "email": "om184312@gmail.com",
+    "phone": "01030714302",
+    "password": "$2b$10$sci9ACAJFXHO2uW1s2kjKu.Og5udsNgKh2asX2UHJ1wJ3QMWMc9.a",
+    "role": "student",
+    "xp": 500,
+    "level": 2,
+    "streak": {
+      "count": 1,
+      "lastActiveDate": "2026-02-20T11:33:08.358Z"
+    },
+    "completedSections": [
+      "6974bf9c872a8e595e87d02c",
+      "6974bf9c872a8e595e87d02c",
+      "6974c543872a8e595e87d06d",
+      "6974c543872a8e595e87d06d",
+      "6974c6d5872a8e595e87d0b3",
+      "697503ac872a8e595e87deac",
+      "6974cfdb872a8e595e87d451",
+      "6974f984872a8e595e87db7e"
+    ],
+    "completedCourses": [],
+    "unlockedCourses": [
+      "6974bf56872a8e595e87d01a"
+    ],
+    "answeredQuestions": [
+      "6974c6d5872a8e595e87d0b3-0",
+      "6974c6d5872a8e595e87d0b3-1",
+      "6974c6d5872a8e595e87d0b3-2",
+      "6974c6d5872a8e595e87d0b3-3",
+      "6974c6d5872a8e595e87d0b3-4",
+      "6974c6d5872a8e595e87d0b3-5",
+      "6974c6d5872a8e595e87d0b3-6",
+      "6974c6d5872a8e595e87d0b3-7",
+      "6974c6d5872a8e595e87d0b3-8",
+      "6974c6d5872a8e595e87d0b3-9",
+      "6974c6d5872a8e595e87d0b3-12",
+      "6974c6d5872a8e595e87d0b3-11",
+      "6974c6d5872a8e595e87d0b3-10",
+      "6974c6d5872a8e595e87d0b3-13",
+      "6974c6d5872a8e595e87d0b3-14",
+      "6974c6d5872a8e595e87d0b3-15",
+      "6974c6d5872a8e595e87d0b3-16",
+      "6974c6d5872a8e595e87d0b3-17",
+      "6974c6d5872a8e595e87d0b3-18",
+      "6974c6d5872a8e595e87d0b3-19",
+      "6974cfdb872a8e595e87d451-0",
+      "6974cfdb872a8e595e87d451-1",
+      "6974cfdb872a8e595e87d451-2",
+      "6974cfdb872a8e595e87d451-3",
+      "6974cfdb872a8e595e87d451-4",
+      "6974cfdb872a8e595e87d451-5",
+      "6974cfdb872a8e595e87d451-6",
+      "6974cfdb872a8e595e87d451-7",
+      "6974cfdb872a8e595e87d451-8",
+      "6974cfdb872a8e595e87d451-9"
+    ],
+    "createdAt": "2026-02-16T19:26:58.143Z",
+    "updatedAt": "2026-02-27T20:27:30.934Z",
+    "__v": 6
+  },
+  {
+    "_id": "69943df8fbed6bc8144c2276",
+    "name": "Salma",
+    "email": "salma.hesham.ali.1622@gmail.com",
+    "phone": "01010004012",
+    "password": "$2b$10$/JwvhDNo8y/DjKbdhHWYt.NgOhMN2ylUHuqCRWu7CwkcAx9sONy7e",
+    "role": "student",
+    "xp": 50,
+    "level": 1,
+    "streak": {
+      "count": 0,
+      "lastActiveDate": "2026-02-17T10:07:52.357Z"
+    },
+    "completedSections": [
+      "6974bf9c872a8e595e87d02c"
+    ],
+    "completedCourses": [],
+    "unlockedCourses": [],
+    "answeredQuestions": [],
+    "createdAt": "2026-02-17T10:07:52.360Z",
+    "updatedAt": "2026-02-17T10:09:17.384Z",
+    "__v": 1
+  },
+  {
+    "_id": "699450ff80f7496fff6939b0",
+    "name": "Walid",
+    "email": "mw1970329@gmail.com",
+    "phone": "01111506687",
+    "password": "$2b$10$v/q9mecYi7.mIAEPnDp4qeuatI1hkOJHXWmDjglxvPKZbkWVsNXuS",
+    "role": "student",
+    "xp": 0,
+    "level": 1,
+    "streak": {
+      "count": 1,
+      "lastActiveDate": "2026-02-17T14:44:27.548Z"
+    },
+    "completedSections": [],
+    "completedCourses": [],
+    "unlockedCourses": [],
+    "answeredQuestions": [],
+    "createdAt": "2026-02-17T11:29:03.253Z",
+    "updatedAt": "2026-02-17T14:44:27.554Z",
+    "__v": 0
+  },
+  {
+    "_id": "6994511780f7496fff6939b4",
+    "name": "David.r",
+    "email": "dovajova36@gmail.com",
+    "phone": "01212402253",
+    "password": "$2b$10$aeaX8ZJgOpCOLbkhacDWp.2IzXupBvO3uvwMxsIKd5If6QcUBM5sK",
+    "role": "student",
+    "xp": 0,
+    "level": 1,
+    "streak": {
+      "count": 1,
+      "lastActiveDate": "2026-02-17T11:29:55.734Z"
+    },
+    "completedSections": [],
+    "completedCourses": [],
+    "unlockedCourses": [],
+    "answeredQuestions": [],
+    "createdAt": "2026-02-17T11:29:27.500Z",
+    "updatedAt": "2026-02-17T11:29:55.740Z",
+    "__v": 0
+  },
+  {
+    "_id": "69945fe06f2216abac1cfb4b",
+    "name": "farah",
+    "email": "farahmagdy732@gmail.com",
+    "phone": "01066999990",
+    "password": "$2b$10$268DQYYCOPpUelJi.i8vmeAngUITYUyxuGI8WpTZhbHdyMijbLZVW",
+    "role": "student",
+    "xp": 150,
+    "level": 1,
+    "streak": {
+      "count": 0,
+      "lastActiveDate": "2026-02-17T12:32:33.001Z"
+    },
+    "completedSections": [
+      "6974bf9c872a8e595e87d02c",
+      "6974bf9c872a8e595e87d02c",
+      "6974bf9c872a8e595e87d02c",
+      "6974bf9c872a8e595e87d02c"
+    ],
+    "completedCourses": [],
+    "unlockedCourses": [],
+    "answeredQuestions": [],
+    "createdAt": "2026-02-17T12:32:33.004Z",
+    "updatedAt": "2026-02-17T12:35:12.678Z",
+    "__v": 4
+  },
+  {
+    "_id": "6996282e469c7162dc62cb1f",
+    "name": "Marwan",
+    "email": "marwanahmed08899@gmail.com",
+    "phone": "01094082154",
+    "password": "$2b$10$/jcpYRiOuIRiqJdnFjCQ.OxN./iKVM2vzh1W9A26yW6imgoo7Ks9e",
+    "role": "student",
+    "xp": 50,
+    "level": 1,
+    "streak": {
+      "count": 1,
+      "lastActiveDate": "2026-02-25T12:08:36.865Z"
+    },
+    "completedSections": [
+      "6974bf9c872a8e595e87d02c"
+    ],
+    "completedCourses": [],
+    "unlockedCourses": [
+      "6974bf56872a8e595e87d01a"
+    ],
+    "answeredQuestions": [],
+    "createdAt": "2026-02-18T20:59:26.917Z",
+    "updatedAt": "2026-02-25T12:08:36.866Z",
+    "__v": 1
+  },
+  {
+    "_id": "69974abcf737a9598c9ae82a",
+    "name": "Mohamed ahmed",
+    "email": "muhammedmedo261@gmail.com",
+    "phone": "01026243111",
+    "password": "$2b$10$ddfvS2jOmH0GbK5OiEbogemHQoom.5k1.pd.RDxdryCzmhbo77iaS",
+    "role": "student",
+    "xp": 40,
+    "level": 1,
+    "streak": {
+      "count": 1,
+      "lastActiveDate": "2026-02-24T17:10:18.391Z"
+    },
+    "completedSections": [],
+    "completedCourses": [],
+    "unlockedCourses": [
+      "6974bf56872a8e595e87d01a"
+    ],
+    "answeredQuestions": [
+      "6974c6d5872a8e595e87d0b3-0",
+      "6974c6d5872a8e595e87d0b3-1",
+      "6974c6d5872a8e595e87d0b3-3",
+      "6974c6d5872a8e595e87d0b3-2"
+    ],
+    "createdAt": "2026-02-19T17:39:08.723Z",
+    "updatedAt": "2026-02-24T17:10:18.393Z",
+    "__v": 0
+  },
+  {
+    "_id": "69975374629263681daccb7b",
+    "name": "cheesecake",
+    "email": "logy.mohammed2@icloud.com",
+    "phone": "0122 6320549",
+    "password": "$2b$10$4ovSYAb007R7CA66mY6Cf.R8tiBPf0r1zzss57IHt4N64MlRwUS5C",
+    "role": "student",
+    "xp": 1300,
+    "level": 4,
+    "streak": {
+      "count": 1,
+      "lastActiveDate": "2026-02-23T11:09:28.154Z"
+    },
+    "completedSections": [
+      "6974bf9c872a8e595e87d02c",
+      "6974bf9c872a8e595e87d02c",
+      "6974c543872a8e595e87d06d",
+      "6974c6d5872a8e595e87d0b3",
+      "6974cfdb872a8e595e87d451",
+      "6974f984872a8e595e87db7e",
+      "6974d88d872a8e595e87d5a4"
+    ],
+    "completedCourses": [],
+    "unlockedCourses": [
+      "6974bf56872a8e595e87d01a"
+    ],
+    "answeredQuestions": [
+      "6974c6d5872a8e595e87d0b3-0",
+      "6974c6d5872a8e595e87d0b3-1",
+      "6974c6d5872a8e595e87d0b3-2",
+      "6974c6d5872a8e595e87d0b3-3",
+      "6974c6d5872a8e595e87d0b3-4",
+      "6974c6d5872a8e595e87d0b3-5",
+      "6974c6d5872a8e595e87d0b3-6",
+      "6974c6d5872a8e595e87d0b3-7",
+      "6974c6d5872a8e595e87d0b3-8",
+      "6974c6d5872a8e595e87d0b3-9",
+      "6974c6d5872a8e595e87d0b3-10",
+      "6974c6d5872a8e595e87d0b3-11",
+      "6974c6d5872a8e595e87d0b3-12",
+      "6974c6d5872a8e595e87d0b3-13",
+      "6974c6d5872a8e595e87d0b3-14",
+      "6974c6d5872a8e595e87d0b3-15",
+      "6974c6d5872a8e595e87d0b3-16",
+      "6974c6d5872a8e595e87d0b3-17",
+      "6974c6d5872a8e595e87d0b3-18",
+      "6974c6d5872a8e595e87d0b3-19",
+      "6974cfdb872a8e595e87d451-0",
+      "6974cfdb872a8e595e87d451-1",
+      "6974cfdb872a8e595e87d451-2",
+      "6974cfdb872a8e595e87d451-3",
+      "6974cfdb872a8e595e87d451-4",
+      "6974cfdb872a8e595e87d451-5",
+      "6974cfdb872a8e595e87d451-6",
+      "6974cfdb872a8e595e87d451-7",
+      "6974cfdb872a8e595e87d451-8",
+      "6974cfdb872a8e595e87d451-9"
+    ],
+    "createdAt": "2026-02-19T18:16:20.885Z",
+    "updatedAt": "2026-02-23T11:26:00.331Z",
+    "__v": 5
+  },
+  {
+    "_id": "6998ad64f74215c2656ca006",
+    "name": "youssef alaa",
+    "email": "youssefalaahanafi@gmail.com",
+    "phone": "01148519997",
+    "password": "$2b$10$J3Vvolm.zpqVJfylXxSXcu.Q5YEPfoKX0X5RbYg440AtbTorWlCGy",
+    "role": "student",
+    "xp": 290,
+    "level": 1,
+    "streak": {
+      "count": 1,
+      "lastActiveDate": "2026-02-20T19:05:18.775Z"
+    },
+    "completedSections": [
+      "6974bf9c872a8e595e87d02c",
+      "6974c6d5872a8e595e87d0b3",
+      "6974c6d5872a8e595e87d0b3"
+    ],
+    "completedCourses": [],
+    "unlockedCourses": [
+      "6974bf56872a8e595e87d01a"
+    ],
+    "answeredQuestions": [
+      "6974c6d5872a8e595e87d0b3-0",
+      "6974c6d5872a8e595e87d0b3-1",
+      "6974c6d5872a8e595e87d0b3-2",
+      "6974c6d5872a8e595e87d0b3-3",
+      "6974c6d5872a8e595e87d0b3-5",
+      "6974c6d5872a8e595e87d0b3-6",
+      "6974c6d5872a8e595e87d0b3-7",
+      "6974c6d5872a8e595e87d0b3-8",
+      "6974c6d5872a8e595e87d0b3-11",
+      "6974c6d5872a8e595e87d0b3-12",
+      "6974c6d5872a8e595e87d0b3-13",
+      "6974c6d5872a8e595e87d0b3-14",
+      "6974c6d5872a8e595e87d0b3-15",
+      "6974c6d5872a8e595e87d0b3-17"
+    ],
+    "createdAt": "2026-02-20T18:52:20.206Z",
+    "updatedAt": "2026-02-23T09:07:06.630Z",
+    "__v": 3
+  },
+  {
+    "_id": "699df9665baaac942ed0cee3",
+    "name": "Ahmed",
+    "email": "meto2008ahmed@gmail.com",
+    "phone": "01028033098",
+    "password": "$2b$10$FT1ubK9EN6iTweXoFYiMmO1hhCDbJIUIsU8XZGPUlD7emQqvQLMfu",
+    "role": "student",
+    "xp": 0,
+    "level": 1,
+    "streak": {
+      "count": 1,
+      "lastActiveDate": "2026-02-24T19:24:01.151Z"
+    },
+    "completedSections": [],
+    "completedCourses": [],
+    "unlockedCourses": [],
+    "answeredQuestions": [],
+    "createdAt": "2026-02-24T19:17:58.961Z",
+    "updatedAt": "2026-02-24T19:24:01.153Z",
+    "__v": 0
+  },
+  {
+    "_id": "699f634e6206aacf22e9cfd9",
+    "name": "Sarah taha",
+    "email": "Sarah2504833@miuegypt.edu.eg",
+    "phone": "01120687935",
+    "password": "$2b$10$FkXXK6FhWJruMgpMDH8i/.zZHLMmTcVb4J88ullG68irhPTZ6XbBu",
+    "role": "student",
+    "xp": 50,
+    "level": 1,
+    "streak": {
+      "count": 0,
+      "lastActiveDate": "2026-02-25T21:02:06.454Z"
+    },
+    "completedSections": [
+      "6974bf9c872a8e595e87d02c"
+    ],
+    "completedCourses": [],
+    "unlockedCourses": [
+      "6974bf56872a8e595e87d01a"
+    ],
+    "answeredQuestions": [],
+    "createdAt": "2026-02-25T21:02:06.455Z",
+    "updatedAt": "2026-02-27T14:17:12.132Z",
+    "__v": 1
+  }
+]

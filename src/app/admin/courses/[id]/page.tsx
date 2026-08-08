@@ -5,6 +5,7 @@ import { useRouter, useParams } from "next/navigation";
 import { GameButton } from "@/components/ui/GameButton";
 import { AdminSidebar } from "@/components/admin/AdminSidebar";
 import { ArrowLeft, ChevronUp, ChevronDown, Edit, Trash2, Save, Plus, X, FileUp } from "lucide-react";
+import { getCourseImage } from "@/lib/course-images";
 
 interface Question {
     questionText: string;
@@ -34,7 +35,6 @@ interface Course {
     certificateEnabled?: boolean;
     isFree: boolean;
     isFeatured: boolean;
-    thumbnail: string;
     languages: string[];
     sections: Section[];
 }
@@ -126,7 +126,6 @@ export default function EditCoursePage() {
     const [course, setCourse] = useState<Course | null>(null);
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
-    const [uploadingImage, setUploadingImage] = useState(false);
 
     // Add Section State
     const [newSection, setNewSection] = useState({ title: "", content: "", type: "text", videoUrl: "", linkUrl: "", isFree: false });
@@ -205,7 +204,6 @@ export default function EditCoursePage() {
                     isFeatured: course.isFeatured,
                     certificateEnabled: course.certificateEnabled === false ? false : true,
                     difficulty: course.difficulty,
-                    thumbnail: course.thumbnail,
                     discountPrice: course.discountPrice,
                     discountActive: course.discountActive,
 
@@ -238,49 +236,6 @@ export default function EditCoursePage() {
             }
         } catch (e) { console.error(e); alert("Error updating course"); }
         setSaving(false);
-    };
-
-    const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-        const file = e.target.files?.[0];
-        if (!file || !course) return;
-
-        setUploadingImage(true);
-        const formData = new FormData();
-        formData.append("file", file);
-
-        try {
-            const res = await fetch("/api/upload", { method: "POST", body: formData });
-            const data = await res.json();
-            if (!res.ok) {
-                alert(data?.error || "Upload failed");
-                return;
-            }
-
-            const nextThumbnail = data.url;
-            setCourse(prev => prev ? { ...prev, thumbnail: nextThumbnail } : prev);
-
-            const persistRes = await fetch(`/api/courses/${courseId}`, {
-                method: "PUT",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ thumbnail: nextThumbnail }),
-            });
-            const persistData = await persistRes.json();
-
-            if (!persistRes.ok) {
-                alert(persistData?.error || "Image uploaded but course update failed");
-                return;
-            }
-
-            if (persistData?.course?.thumbnail) {
-                setCourse(prev => prev ? { ...prev, thumbnail: persistData.course.thumbnail } : prev);
-            }
-        } catch (err) {
-            console.error(err);
-            alert("Upload failed");
-        } finally {
-            setUploadingImage(false);
-            e.target.value = "";
-        }
     };
 
     const handleQuizCsvImport = async (file?: File) => {
@@ -506,11 +461,12 @@ export default function EditCoursePage() {
                                 </div>
 
                                 <div>
-                                    <label className="text-xs text-slate-500 font-mono mb-1 block">THUMBNAIL</label>
-                                    <div className="flex items-center gap-2">
-                                        <input type="file" accept="image/*" onChange={handleImageUpload} disabled={uploadingImage} className="text-xs text-slate-400" />
-                                        {uploadingImage && <span className="text-xs text-primary">Uploading...</span>}
-                                        {course.thumbnail && <img src={course.thumbnail} alt="Thumb" className="w-10 h-10 object-cover rounded border border-slate-700" />}
+                                    <label className="text-xs text-slate-500 font-mono mb-1 block">IMAGE</label>
+                                    <div className="flex items-center gap-3">
+                                        <img src={getCourseImage(courseId)} alt="Course" className="w-10 h-10 object-cover rounded border border-slate-700" />
+                                        <p className="text-[11px] text-slate-500 font-mono leading-tight">
+                                            Set statically in <span className="text-slate-400">src/lib/course-images.ts</span>
+                                        </p>
                                     </div>
                                 </div>
 

@@ -33,7 +33,6 @@ async function snapshot() {
         course: {
             title: existingCourse.title,
             description: existingCourse.description,
-            thumbnail: existingCourse.thumbnail,
             difficulty: existingCourse.difficulty,
             languages: existingCourse.languages || [],
             price: existingCourse.price || 0,

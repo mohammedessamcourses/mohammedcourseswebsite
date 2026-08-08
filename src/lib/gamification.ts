@@ -13,11 +13,14 @@ export interface XPAwardResult {
     levelUp: boolean;
     xpAwarded: number;
     newTotalXP: number;
+    /** Origin of the award, e.g. `completed-section-<id>`. Useful for tracing XP in logs. */
+    reason?: string;
 }
 
 export async function awardXP(
     userOrId: string | IUser,
-    amount: number
+    amount: number,
+    reason?: string
 ): Promise<XPAwardResult | null> {
     let user: IUser | null;
 
@@ -51,6 +54,7 @@ export async function awardXP(
         levelUp,
         xpAwarded: amount,
         newTotalXP: user.xp,
+        reason,
     };
 }
 

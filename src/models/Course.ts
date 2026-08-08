@@ -4,7 +4,6 @@ import "./Section"; // Helper to ensure model registration
 export interface ICourse extends Document {
     title: string;
     description: string;
-    thumbnail: string;
     difficulty: "beginner" | "intermediate" | "advanced";
     languages: string[];
     price: number;
@@ -22,7 +21,6 @@ const CourseSchema: Schema<ICourse> = new Schema(
     {
         title: { type: String, required: true },
         description: { type: String, required: true },
-        thumbnail: { type: String, required: true },
         difficulty: {
             type: String,
             enum: ["beginner", "intermediate", "advanced"],

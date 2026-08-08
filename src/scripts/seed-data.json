@@ -2,7 +2,6 @@
   "course": {
     "title": "Problem Solving (C++)",
     "description": "Learn C++ fundamentals from scratch. loops, functions, arrays, pointers, file I/O, and basic OOP — and build a solid programming foundation.",
-    "thumbnail": "https://djadghhqpcsjbhormkqn.supabase.co/storage/v1/object/public/coursespictures/1769258815324_wizardthumbnail.png",
     "difficulty": "beginner",
     "languages": [
       "C++",

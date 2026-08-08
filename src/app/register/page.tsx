@@ -1,13 +1,11 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { GameButton } from "@/components/ui/GameButton";
 import { GameInput } from "@/components/ui/GameInput";
 
 export default function RegisterPage() {
-    const router = useRouter();
     const [formData, setFormData] = useState({ name: "", email: "", phone: "", password: "" });
     const [error, setError] = useState("");
     const [loading, setLoading] = useState(false);
@@ -27,7 +25,10 @@ export default function RegisterPage() {
             const data = await res.json();
 
             if (res.ok) {
-                router.push("/");
+                // Full-document navigation so the new session cookie is applied
+                // and the logged-out App Router cache is discarded (see login page).
+                window.location.href = "/";
+                return;
             } else {
                 setError(data.error || "Registration failed");
             }

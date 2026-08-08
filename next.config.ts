@@ -1,18 +1,7 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  images: {
-    remotePatterns: [
-      {
-        protocol: 'https',
-        hostname: 'images.unsplash.com',
-      },
-      {
-        protocol: 'https',
-        hostname: 'djadghhqpcsjbhormkqn.supabase.co',
-      },
-    ],
-  },
+  // All images are static files served from /public — no remote hosts allowed.
   async headers() {
     return [
       {

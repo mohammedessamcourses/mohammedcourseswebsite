@@ -4,7 +4,7 @@ import dbConnect from "@/lib/db";
 import User, { type IUser } from "@/models/User";
 import { verifyToken } from "@/lib/auth";
 import { cookies } from "next/headers";
-import { type FilterQuery } from "mongoose";
+import { type QueryFilter } from "mongoose";
 
 export async function GET(req: Request) {
     try {
@@ -33,7 +33,7 @@ export async function GET(req: Request) {
         const search = searchParams.get("search") || "";
 
         // Build query
-        let query: FilterQuery<IUser> = {};
+        let query: QueryFilter<IUser> = {};
         if (search) {
             query = {
                 $or: [
@@ -50,20 +50,22 @@ export async function GET(req: Request) {
         const limit = Number.isFinite(limitParam) ? Math.min(Math.max(limitParam, 1), 2000) : 500;
         const offset = Number.isFinite(offsetParam) ? Math.max(offsetParam, 0) : 0;
 
-        let queryBuilder = User.find(query).sort({ createdAt: -1 }).skip(offset).limit(limit);
+        // `.populate()` widens the query's result type, so each branch is executed
+        // directly rather than reassigned into a single builder variable.
+        const pagedUsers = () =>
+            User.find(query).sort({ createdAt: -1 }).skip(offset).limit(limit);
 
-        if (details === "true") {
-            queryBuilder = queryBuilder
+        const usersQuery = details === "true"
+            ? pagedUsers()
                 .select("name email role xp level streak unlockedCourses completedCourses createdAt")
                 .populate("unlockedCourses", "title price isFree")
-                .populate("completedCourses", "title");
-        } else {
+                .populate("completedCourses", "title")
+                .lean()
             // Lightweight payload for overview analytics and course dashboard
-            queryBuilder = queryBuilder.select("name email unlockedCourses completedCourses createdAt");
-        }
+            : pagedUsers().select("name email unlockedCourses completedCourses createdAt").lean();
 
         const [users, totalCount] = await Promise.all([
-            queryBuilder.lean(),
+            usersQuery,
             User.countDocuments(query),
         ]);
 

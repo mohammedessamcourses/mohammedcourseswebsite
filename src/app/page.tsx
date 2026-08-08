@@ -10,12 +10,13 @@ import Course from "@/models/Course";
 import Squares from "@/components/ui/Squares";
 import ModelViewerWrapper from "@/components/ui/ModelViewerWrapper";
 import { ContactSection } from "@/components/ui/ContactSection";
+import { getCourseImage } from "@/lib/course-images";
 
 
 export default async function Home() {
   await dbConnect();
   const featuredCourses = await Course.find({ isFeatured: true })
-    .select("title description thumbnail difficulty price discountPrice discountActive isFree slug")
+    .select("title description difficulty price discountPrice discountActive isFree slug")
     .lean();
 
   return (
@@ -84,7 +85,7 @@ export default async function Home() {
                     <GameCard className="h-full hover:scale-105 transition-transform duration-300">
                       <div className="relative w-full h-40 mb-4 overflow-hidden rounded border border-slate-700">
                         <Image
-                          src={course.thumbnail}
+                          src={getCourseImage(String(course._id))}
                           alt={course.title}
                           fill
                           className="object-cover"

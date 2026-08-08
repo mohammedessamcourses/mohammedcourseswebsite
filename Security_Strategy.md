@@ -13,7 +13,7 @@ Currently, you are using **YouTube Unlisted**. This is the least secure method b
 - **Vimeo Pro/Business**: Offers domain-restricted embedding and higher security levels.
 
 ## 2. Infrastructure Layer
-- **CloudFront/Signed URLs**: If you host files (PDFs, Source Code) in S3/Supabase Storage, use **Signed URLs** that expire after 1 hour. This prevents people from sharing a direct download link.
+- **CloudFront/Signed URLs**: If you host files (PDFs, Source Code) in object storage, use **Signed URLs** that expire after 1 hour. This prevents people from sharing a direct download link.
 - **Middleware-based Access**: Ensure your API routes (`/api/sections/[id]`) always verify that the `userId` has `unlockedCourses` containing the relevant course ID before serving content.
 
 ## 3. UI Layer (Added in current update)

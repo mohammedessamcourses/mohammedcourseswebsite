@@ -14,8 +14,10 @@ import User from "@/models/User";
 import CertificateRequest from "@/models/CertificateRequest";
 import { verifyToken } from "@/lib/auth";
 import { cookies } from "next/headers";
+import { redirect } from "next/navigation";
 import { Play, Zap, Trophy, BookOpen, Target, ArrowRight, Flame, Tag } from "lucide-react";
 import { unstable_noStore as noStore } from "next/cache";
+import { getCourseImage } from "@/lib/course-images";
 
 async function getData() {
     noStore();
@@ -65,11 +67,12 @@ export default async function DashboardPage() {
     const { courses, user, certificateRequests } = await getData();
 
     if (!user) {
-        return (
-            <div className="min-h-screen bg-slate-950 flex items-center justify-center text-white">
-                <Link href="/login"><GameButton>Please Login</GameButton></Link>
-            </div>
-        )
+        // No valid session (missing/expired/invalid token, or deleted user).
+        // Redirect to login instead of rendering a dead-end "Please Login"
+        // button — this keeps behavior consistent with the proxy/middleware,
+        // which also redirects unauthenticated visits to /dashboard, and avoids
+        // a stuck "Please Login" state that looked like a bug.
+        redirect("/login");
     }
 
     // Courses are already filtered by the DB query now
@@ -150,7 +153,7 @@ export default async function DashboardPage() {
                                     <Link key={course._id} href={`/courses/${course._id}`}>
                                         <GameCard className="p-4 hover:border-primary/50 transition-colors cursor-pointer flex flex-wrap sm:flex-nowrap items-center gap-4">
                                             <div className="w-16 h-16 bg-slate-800 rounded overflow-hidden shrink-0">
-                                                {course.thumbnail && <img src={course.thumbnail} alt="" className="w-full h-full object-cover" />}
+                                                <img src={getCourseImage(course._id)} alt="" className="w-full h-full object-cover" />
                                             </div>
                                             <div className="flex-grow">
                                                 <h4 className="font-heading text-white">{course.title}</h4>
@@ -203,9 +206,7 @@ export default async function DashboardPage() {
 
                                     <GameCard className="h-full flex flex-col relative z-10 bg-slate-900/90 backdrop-blur">
                                         <div className="aspect-video bg-slate-800 mb-4 rounded border border-slate-700 overflow-hidden relative">
-                                            {course.thumbnail && (
-                                                <img src={course.thumbnail} alt={course.title} className="w-full h-full object-cover" />
-                                            )}
+                                            <img src={getCourseImage(course._id)} alt={course.title} className="w-full h-full object-cover" />
 
                                             {isCompleted && (
                                                 <div className="absolute top-2 left-2 bg-primary text-black text-[10px] font-mono px-2 py-1 rounded z-20">

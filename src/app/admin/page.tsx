@@ -75,12 +75,10 @@ export default function AdminDashboard() {
         isFree: false,
         isFeatured: false,
         certificateEnabled: true,
-        thumbnail: "",
         difficulty: "beginner",
         discountPrice: 0,
         discountActive: false
     });
-    const [uploading, setUploading] = useState(false);
     const [courseSearch, setCourseSearch] = useState("");
 
     const router = useRouter();
@@ -268,31 +266,6 @@ export default function AdminDashboard() {
         } catch (e) { console.error(e); }
     };
 
-    const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-        const file = e.target.files?.[0];
-        if (!file) return;
-
-        setUploading(true);
-        const formData = new FormData();
-        formData.append("file", file);
-
-        try {
-            const res = await fetch("/api/upload", { method: "POST", body: formData });
-            const data = await res.json();
-            if (!res.ok) {
-                alert(data?.error || "Upload failed");
-                return;
-            }
-
-            setNewCourse({ ...newCourse, thumbnail: data.url });
-        } catch (err) {
-            console.error(err);
-            alert("Upload failed");
-        } finally {
-            setUploading(false);
-        }
-    };
-
     const handleCreateCourse = async (e: React.FormEvent) => {
         e.preventDefault();
         try {
@@ -311,7 +284,6 @@ export default function AdminDashboard() {
                     isFree: false,
                     isFeatured: false,
                     certificateEnabled: true,
-                    thumbnail: "",
                     difficulty: "beginner",
                     discountPrice: 0,
                     discountActive: false
@@ -563,11 +535,6 @@ export default function AdminDashboard() {
                                             onChange={e => setNewCourse({ ...newCourse, price: Number(e.target.value) })}
                                             disabled={newCourse.isFree}
                                         />
-                                        <div className="bg-slate-950 border border-slate-700 p-2 w-full flex items-center gap-2">
-                                            <input type="file" accept="image/*" onChange={handleImageUpload} className="text-white text-xs" />
-                                            {uploading && <span className="text-secondary text-xs animate-pulse">UPLOADING...</span>}
-                                        </div>
-                                        {newCourse.thumbnail && <div className="text-xs text-primary truncate px-2">{newCourse.thumbnail}</div>}
                                         <label className="flex items-center gap-2 text-white cursor-pointer"><input type="checkbox" checked={newCourse.isFree} onChange={e => setNewCourse({ ...newCourse, isFree: e.target.checked, price: e.target.checked ? 0 : newCourse.price })} /> Free Access</label>
                                         <label className="flex items-center gap-2 text-white cursor-pointer"><input type="checkbox" checked={newCourse.isFeatured} onChange={e => setNewCourse({ ...newCourse, isFeatured: e.target.checked })} /> Featured</label>
                                         <label className="flex items-center gap-2 text-white cursor-pointer"><input type="checkbox" checked={newCourse.certificateEnabled} onChange={e => setNewCourse({ ...newCourse, certificateEnabled: e.target.checked })} /> Certificate Enabled</label>

@@ -34,7 +34,6 @@ const saveSeedSnapshot = async () => {
         course: {
             title: existingCourse.title,
             description: existingCourse.description,
-            thumbnail: existingCourse.thumbnail,
             difficulty: existingCourse.difficulty,
             languages: existingCourse.languages || [],
             price: existingCourse.price || 0,
@@ -131,7 +130,6 @@ async function seed() {
             const freeCourse = await Course.create({
                 title: "Intro to Cyberpunk Coding",
                 description: "Learn the basics of the grid. Survive the net. Free entry for all neon runners.",
-                thumbnail: "https://images.unsplash.com/photo-1550745165-9bc0b252726f?q=80&w=2070&auto=format&fit=crop",
                 difficulty: "beginner",
                 price: 0,
                 isFree: true,
@@ -141,7 +139,6 @@ async function seed() {
             const paidCourse = await Course.create({
                 title: "Mastering the Matrix",
                 description: "Advanced techniques for high-level operatives. Payment required. Clearance restricted.",
-                thumbnail: "https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?q=80&w=2070&auto=format&fit=crop",
                 difficulty: "advanced",
                 price: 500,
                 discountPrice: 250,

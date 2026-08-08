@@ -15,7 +15,6 @@ export async function proxy(request: NextRequest) {
 
     // Skip rate limiting for static assets
     const isStatic = pathname.startsWith("/_next") ||
-        pathname.startsWith("/api/upload") || // Allow uploads (large files might hit limits)
         pathname.includes(".") ||
         pathname.startsWith("/gifs");
 

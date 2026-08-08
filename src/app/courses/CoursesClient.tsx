@@ -6,6 +6,7 @@ import { GameCard } from "@/components/ui/GameCard";
 import { GameButton } from "@/components/ui/GameButton";
 import { Search, Filter, Play, Tag } from "lucide-react";
 import { CourseSidebar } from "@/components/courses/CourseSidebar";
+import { getCourseImage } from "@/lib/course-images";
 
 interface CoursesClientProps {
     courses: any[];
@@ -87,9 +88,7 @@ export default function CoursesClient({ courses }: CoursesClientProps) {
                                 <GameCard className="h-full flex flex-col relative z-10 bg-slate-900/90 backdrop-blur">
                                     <Link href={`/courses/${course._id}`} className="block">
                                         <div className="aspect-video bg-slate-800 mb-4 rounded border border-slate-700 overflow-hidden relative">
-                                            {course.thumbnail && (
-                                                <img src={course.thumbnail} alt={course.title} className="w-full h-full object-cover transition-transform group-hover:scale-105 duration-500" />
-                                            )}
+                                            <img src={getCourseImage(course._id)} alt={course.title} className="w-full h-full object-cover transition-transform group-hover:scale-105 duration-500" />
                                             {/* Discount Badge */}
                                             {course.discountActive && !course.isFree && (
                                                 <div className="absolute top-2 right-2 bg-arcade text-black font-press-start text-[8px] px-2 py-1 rounded shadow-lg animate-bounce flex items-center gap-1 z-20">
