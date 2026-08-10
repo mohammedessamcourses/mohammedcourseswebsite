@@ -44,6 +44,35 @@ export async function POST(req: Request) {
             return NextResponse.json({ message: "Already completed" }, { status: 200 });
         }
 
+        // A quiz is only complete once every question has been answered. Without this
+        // the endpoint would mark any section id complete on request, letting a quiz be
+        // finished (and 50 XP claimed) without answering anything.
+        const targetSection = await Section.findById(sectionId).select("type questions").lean();
+        if (!targetSection) {
+            return NextResponse.json({ error: "Section not found" }, { status: 404 });
+        }
+
+        const sectionTyped = targetSection as { type?: string; questions?: unknown[] };
+        if (sectionTyped.type === "quiz") {
+            const questionCount = (sectionTyped.questions || []).length;
+            const answeredCount = new Set(
+                (user.answeredQuestions || [])
+                    .map(String)
+                    .filter((id) => id.startsWith(`${String(sectionId)}-`))
+            ).size;
+
+            if (answeredCount < questionCount) {
+                return NextResponse.json(
+                    {
+                        error: "Answer all quiz questions before completing this section.",
+                        answered: answeredCount,
+                        total: questionCount,
+                    },
+                    { status: 400 }
+                );
+            }
+        }
+
         // Mark completed
         user.completedSections.push(new mongoose.Types.ObjectId(sectionId));
 

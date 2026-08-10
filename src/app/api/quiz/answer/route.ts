@@ -113,15 +113,23 @@ export async function POST(req: Request) {
                     }
                 };
 
-                // Check if this was the last question for this section
-                const updatedAnswered = [...(user.answeredQuestions || []), answerId];
+                // Check if this was the last question for this section.
+                //
+                // Counted as a Set of DISTINCT answer ids. A plain array concat let a
+                // re-answer of an already-answered question count twice, so the total
+                // hit questions.length one real answer early and the section was marked
+                // complete while a question remained unanswered.
                 const sectionQuestionsCount = questions.length;
-                const answeredForThisSection = updatedAnswered.filter((id) => String(id).startsWith(`${sId}-`));
+                const distinctAnsweredForSection = new Set(
+                    [...(user.answeredQuestions || []).map(String), answerId]
+                        .filter((id) => id.startsWith(`${sId}-`))
+                );
 
-                // If all questions are answered, mark section as completed too
-                if (answeredForThisSection.length >= sectionQuestionsCount) {
+                // Only complete when every question has a distinct recorded answer.
+                // The `> 0` guard stops a question-less section completing vacuously.
+                if (sectionQuestionsCount > 0 && distinctAnsweredForSection.size >= sectionQuestionsCount) {
                     finalUpdate.$addToSet.completedSections = section._id;
-                    console.log(`[QUIZ] Marking section ${sectionId} as COMPLETED`);
+                    console.log(`[QUIZ] Marking section ${sectionId} as COMPLETED (${distinctAnsweredForSection.size}/${sectionQuestionsCount})`);
                 }
 
                 const updatedUser = await User.findByIdAndUpdate(

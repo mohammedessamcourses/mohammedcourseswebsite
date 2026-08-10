@@ -609,15 +609,41 @@ export function CourseView({ course, user, hasPendingCertificate = false, hasPen
                                             }
                                         })()}
 
-                                        <div className="mt-12 pt-6 border-t border-slate-700 flex justify-end">
-                                            <GameButton
-                                                size="lg"
-                                                onClick={() => handleComplete(currentSection._id)}
-                                                disabled={completedSections.includes(currentSection._id)}
-                                                className={completedSections.includes(currentSection._id) ? "opacity-50" : ""}
-                                            >
-                                                {completedSections.includes(currentSection._id) ? "MISSION COMPLETED" : "MARK COMPLETE (+50 XP)"}
-                                            </GameButton>
+                                        <div className="mt-12 pt-6 border-t border-slate-700 flex justify-end items-center gap-4">
+                                            {(() => {
+                                                // A quiz completes by answering its questions, not by pressing a
+                                                // button — offering "MARK COMPLETE" here let students finish a quiz
+                                                // (and claim the XP) without answering anything.
+                                                const isQuiz = currentSection.type === "quiz";
+                                                const isDone = completedSections.includes(currentSection._id);
+
+                                                if (isQuiz && !isDone) {
+                                                    const total = (currentSection.questions || []).length;
+                                                    const answered = new Set(
+                                                        answeredQuestions
+                                                            .map(String)
+                                                            .filter((id: string) => id.startsWith(`${currentSection._id}-`))
+                                                    ).size;
+
+                                                    return (
+                                                        <p className="font-mono text-sm text-slate-400">
+                                                            Answer all questions to complete this quiz
+                                                            <span className="text-primary"> ({answered}/{total})</span>
+                                                        </p>
+                                                    );
+                                                }
+
+                                                return (
+                                                    <GameButton
+                                                        size="lg"
+                                                        onClick={() => handleComplete(currentSection._id)}
+                                                        disabled={isDone}
+                                                        className={isDone ? "opacity-50" : ""}
+                                                    >
+                                                        {isDone ? "MISSION COMPLETED" : "MARK COMPLETE (+50 XP)"}
+                                                    </GameButton>
+                                                );
+                                            })()}
 
                                             {/* Next Stage Button */}
                                             {(() => {
